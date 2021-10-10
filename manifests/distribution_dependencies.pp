@@ -7,7 +7,7 @@ class distribution_dependencies {
         'python-dev',
         'python3-dev',
         'libpython3.6',
-        'libpam-passwdqc',
+        'libpam-passwdqc', # is this provided by pam?
         'openssh-client',
         'sshpass', ## is it needed?
         'apache2-suexec-custom',

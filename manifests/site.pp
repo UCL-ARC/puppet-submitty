@@ -19,20 +19,37 @@
 #   include role::demo
 # }
 
-
 include git_latest
 include basic_dependencies
+include pam
 
-file {'/etc/motd':
-  ensure => present,
-  content => epp('motd/motd.epp',
-                 {
-                   'submission_url' => 'http://mylocalhost',
-                   'database_port' => "8332", # FIXME Template (should it be an integer?)
-                 }),
+  file { '/tmp/facts.yaml':
+    content => inline_template(' <%= scope.to_hash.reject { |k,v| !( k.is_a?(String) && v.is_a?(String) ) }.to_yaml %>'),
+  }
+
+
+  if lookup('vagrant') {
+    # NOTE FIXME where should the templates for vagrant live? under profile?
+  file {'/etc/motd':
+    ensure => present,
+    content => epp("profile/vagrant/vagrant_motd.epp",
+                   {
+                     'submission_url' => 'http://mylocalhost',
+                     'database_port' => "8332", # FIXME Template (should it be an integer?)
+                   }),
   mode => '0644',
-}
+  }
+  file {'/root/.bashrc':
+    ensure => present,
+    content => epp("profile/vagrant/vagrant_root_bashrc.epp",
+                   {
+                     'submission_url' => 'http://mylocalhost',
+                     'database_port' => "8332", # FIXME Template (should it be an integer?)
+                   }),
+  mode => '0644',
+  }
 
+}
 # FIXME - is there a way to know it's running on vagrant? Set option.
 #         other options: Worker / no submission
 
@@ -85,6 +102,21 @@ $data.each | Integer $value | {
     require => Group["untrusted${userid}"],
   }
 }
+
+## Submitty data
+$data_dir = lookup('submitty', Hash)['data_dir']
+$data_dirs = ['', 'courses', 'instructors']
+file {$data_dirs.map | $item | {join([$data_dir, $item], '/')}:
+  ensure => directory,
+}
+
+file {"${data_dir}/instructors/valid":
+  ensure => present,
+  # FIXME: it still needs the users that are not system users
+  content => join(sort(lookup('system_users', Hash, 'hash').map |$key, $value| {$key}), "\n")
+}
+
+
 
 # [0, lookup('untrusted', Integer)].step(1).each | Integer $value | {
 #   notice sprintf("%<x>s : %<y>d", { 'x' => 'value is', 'y' => $value })

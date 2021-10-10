@@ -45,35 +45,60 @@ class { 'postgresql::server':
 include my_apache
 
 
+$extensions = {
+  imagick => {
+    # TODO check if works in centos!
+  },
+  ds   => {
+    # FIXME launching php shows an error about file ds.so.so doesn't exist.
+    ini_prefix => '21-', # NOTE this is setting in /etc/php/7.4/mods-available/21-ds.ini.
+  },
+}
+if lookup('vagrant') {
+  $php_extensions = {'extensions' => ($extensions + {'xdebug' => {
+    settings_prefix => true,
+    settings => {
+      remote_enable => 1,
+      remote_port => 9000,
+      remote_host => "10.0.2.2",
+      profiler_enable_trigger =>1,
+      profiler_output_dir => join([lookup('submitty', Hash)['repository'], "/.vagrant/Ubuntu/profiler"], ''),
+      }
+  }})}
+} else {
+  $php_extensions = {'extensions' => $extensions}
+}
+notice $php_extensions
 class { '::php':
   ensure       => latest,
   manage_repos => true,
   fpm          => true,
   phpunit      => false,
   composer     => true,
-  extensions => {
-    imagick => {
-      # TODO check if works in centos!
-    },
-    ds   => {
-      # FIXME launching php shows an error about file ds.so.so doesn't exist.
-    },
-    # for vagrant
-    xdebug => {
-
-    }
-  }
+  * => $php_extensions,
 }
+# NOTE this may still be needed - or the prefix above works?
 # A work around based on https://github.com/php-ds/ext-ds/issues/2
-exec { 'php: fix ds-json':
-  path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
-  cwd     => "/etc/php/7.4/cli/conf.d",
-  command => "mv 20-json.ini 19-json.ini",
-  creates => "/etc/php/7.4/cli/conf.d/19-json.ini",
-  onlyif  => "test -f /etc/php/7.4/cli/conf.d/20-json.ini",
-  require => Class['::php'],
+# exec { 'php: fix ds-json':
+#   path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+#   cwd     => "/etc/php/7.4/cli/conf.d",
+#   command => "mv 20-json.ini 19-json.ini",
+#   creates => "/etc/php/7.4/cli/conf.d/19-json.ini",
+#   onlyif  => "test -f /etc/php/7.4/cli/conf.d/20-json.ini",
+#   require => Class['::php'],
+# }
+php::fpm::pool { 'submitty':
+  user => submitty_php,
+  group => submitty_php,
+  listen => '/run/php/php-fpm-submitty.sock',
+  listen_owner => 'www-data',
+  listen_group => 'www-data',
+  pm => 'dynamic',
+  pm_max_children => 20,
+  pm_start_servers => 4,
+  pm_min_spare_servers => 2,
+  pm_max_spare_servers => 6,
 }
-
 
 class { 'nodejs': } # FIXME (maybe) - should we restrict it to version 12?
 include 'docker'

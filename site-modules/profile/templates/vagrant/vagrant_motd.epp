@@ -1,0 +1,44 @@
+<%- |
+    String $submission_url,
+    String $database_port,
+    | -%>
+_______  __   __  _______  __   __  ___   _______  _______  __   __
+|       ||  | |  ||  _    ||  |_|  ||   | |       ||       ||  | |  |
+|  _____||  | |  || |_|   ||       ||   | |_     _||_     _||  |_|  |
+| |_____ |  |_|  ||       ||       ||   |   |   |    |   |  |       |
+|_____  ||       ||  _   | |       ||   |   |   |    |   |  |_     _|
+ _____| ||       || |_|   || ||_|| ||   |   |   |    |   |    |   |
+|_______||_______||_______||_|   |_||___|   |___|    |___|    |___|
+
+############################################################
+##  RUNNING: Ubuntu {full => 20.04, major => 20.04} ##
+##                                                        ##
+##  All user accounts have same password as name.         ##
+##                                                        ##
+##  The following accounts are system users:              ##
+##    vagrant, root, submitty_php, submitty_cgi,          ##
+##    submitty_daemon, ta, instructor, postgres           ##
+##                                                        ##
+##  The following accounts are database accounts:         ##
+##    submitty_dbuser, postgres, vagrant                  ##
+##                                                        ##
+##  The following users can log into the website:         ##
+##    instructor, ta, ta2, ta3, student                   ##
+##                                                        ##
+##  The VM can be accessed with the following urls:       ##
+##  <%= $submission_url %> (submission)  ##
+##  <%= $submission_url %>/cgi-bin (cgi-bin scripts) ##
+##  <%= $submission_url %>/git (git) ##
+##                                                        ##
+##  The database can be accessed on the host machine at   ##
+## localhost:<%= $database_port %>                        ##
+##                                                        ##
+##  The vagrant box comes with some helpful commands,     ##
+##  which can be shown by doing:                          ##
+##    submitty_help                                       ##
+##                                                        ##
+##  Check out https://submitty.org/developer for helpful  ##
+##  information on getting started and developing.        ##
+##                                                        ##
+##  Happy developing!                                     ##
+############################################################
