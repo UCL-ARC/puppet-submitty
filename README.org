@@ -1,0 +1,76 @@
+
+* TODO
+
+   - [ ] nodes/environments: vagrant/primary/worker/no_submission?
+     - [ ] vagrant: motd and variables
+   - [ ] .bashrc for root? (install_system.sh)
+   - [ ] Distros Ubuntu (doing 20.04), RHEL (doing CentOS 8), Debian (todo)
+   - [ ] ntp service (done), does it by adding it?
+
+* Steps
+  - Start vagrant (using focal/64) (to test on centos/8 with the other box) (M-m a t v V) + terminal (M-m a t v t)
+    - vagrant_provision installs puppet + runs the production environment
+    - Added path to root for installed gems on Vagrant
+  - generate dependencies with ~generate-puppetfile -p ./Puppetfile~ and run the last two commands from provision (r10k install + apply)
+
+** Where are we now?
+    - [X] r10k first dependencies!
+    - [ ] [2021-10-09 Sat 16:28] going here:  [[file:~/Documents/Work/RSDG/Projects/Teaching/submitty_stuff/Submitty/.setup/install_system.sh::JAR SETUP][JAR Setup]]
+
+** Submitty script map
+   #+begin_src artist
+
+
+     Submitty                      .setup/                                                                    /bin/                               /distro_setup/
+                                /--------------------\              +--------------------------+                                                                                        {distro}/{version}/
+                                |  install_system.sh +----------->  | Setup variables          |
+                                |                    |              +--------------------------+
+                                |                    |--------+     | !Paths / Users & groups! |           +---------------+                                                          +------------------------------+
+                                |                    |        |     +--------------------------+      ---> |  versions.sh  |                                                          |  setup_distro.sh             |
+                                |                    |        \--------------------------------------/     +---------------+                                                          +------------------------------+
+                                |                    |              +----------------------+               | repositories  |                   +--------------------+                 |                              |
+                                |                    |------------> |If Vagrant            |               |       &       |                   | setup_distro.sh    |                 |  Install basic packages      |
+                                |                    |              +----------------------+               |   ext tools   |                   +--------------------+                 |                              |
+                                |                    |              |Set SSH               |               +---------------+                   |                    |                 |  Install ntp                 |
+                                |                    |              |Set /root/.bahsrc     |                                                   | extract distro     |                 |                              |
+                                |                    |              |   - aliases          |                                                   |   version          |                 |  Install php + apache        |
+                                |                    |------------- |   - services         | ----------------------------------------------->  |                    |                 |                              |
+                                |                    |              |   - variables        |                                                   |                    |-------------->  |  Install programming tools   |
+                                |                    |              +----------------------+                                                   |                    |                 |                              |
+                                |                    |                                                                 /-----------------------|                    |                 |  Install Docker-CE           |
+                                |                    |              +----------------------+              /-----------/                        +--------------------+                 |                              |
+                                |                    |              |If Vagrant            |             /                                                                            |  Install git 2.28+           |
+                                |                    |              +----------------------+ <----------/                                                                             +------------------------------+
+                                |                    |              |Set message of the day|
+                                |                    |              +----------------------+
+                                |                    |
+                                |                    |              +----------------------+
+                                |              (209) |------------> |Install QR libs       |
+                                |                    |              |                      |
+                                |                    |              |Install python deps   |
+                                |                    |              |                      |
+                                |                    |              |Install npm           |
+                                |                    |              +----------------------|
+                                +--------------------+              |If Vagrant            |
+                                                                    |   +------------------|
+                                                                    |.  |Install Haskell   |
+                                                                    +---+------------------+
+
+
+   #+end_src
+
+* README repo
+
+This is an example Puppet infrastructure for the [Puppet Beginner's Guide, Second Edition](http://bitfieldconsulting.com/pbg2). It illustrates all the techniques and concepts described in the book, and draws them together into a complete working infrastructure which you can copy and use in your own projects. While you don't have to buy the book to use the demo repo, I'd obviously be very happy if you did.
+
+To try it out, clone the repo and then run 'vagrant up' from within the repo directory. (If you don't have Vagrant installed, go to the [Vagrant Downloads page](https://www.vagrantup.com/downloads.html)).
+
+Alternatively, to bootstrap a server, all you will need is the IP address or DNS name of the target server. Run the following command from the Puppet repo, replacing `TARGET_SERVER` with the address or name of the server, and `HOSTNAME` with the hostname that you want to set (for example `demo`):
+
+    scripts/puppify TARGET_SERVER HOSTNAME
+
+The demo repo is built on a skeleton Puppet control repo available from [the Puppet GitHub account](https://github.com/puppetlabs/control-repo).
+
+It adds everything required for a typical Puppet infrastructure, including user accounts and SSH keys, SSH and sudoers config, timezone and NTP settings, Hiera data, resources to automatically update and run Puppet, and a bootstrap script for bringing new servers under Puppet management. It also includes a Vagrantfile so you can try out the repo on a Vagrant virtual machine.
+
+You can also find all the code examples from the book in the [Puppet Beginner's Guide example repo](https://github.com/bitfield/puppet-beginners-guide).

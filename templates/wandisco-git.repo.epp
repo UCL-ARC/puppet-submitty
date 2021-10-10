@@ -1,0 +1,8 @@
+<%- |
+    String  $baseurl,
+    | -%>
+[wandisco-git]
+name=WANdisco GIT Repo
+baseurl=<%= $baseurl %>
+enabled=1
+gpgcheck=0

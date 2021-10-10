@@ -1,20 +1,130 @@
 ---
-  users:
-    'john':
-      comment: 'John Arundel'
-      uid: '1010'
-      sshkeys:
-        - 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEA3ATqENg+GWACa2BzeqTdGnJhNoBer8x6pfWkzNzeM8Zx7/2Tf2pl7kHdbsiTXEUawqzXZQtZzt/j3Oya+PZjcRpWNRzprSmd2UxEEPTqDw9LqY5S2B8og/NyzWaIYPsKoatcgC7VgYHplcTbzEhGu8BsoEVBGYu3IRy5RkAcZik= john@susie'
-    'bridget':
-      comment: 'Bridget X. Zample'
-      uid: '1011'
-      sshkeys:
-        - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCiTvHgzkf9TGBIpnIUBRbsWaRNBqzrLY/OoQpzqprGFLuTzzb8MaGI9Q6GPIhil5HyXE7PWPyuwcBA4mJhIHBXWqQC5o59cdtrkgJwAybSK7z5oVt67B0qieDG/cbasxr52nMAJC3dBEF4W1s69VSq5+wLFD01iW= bridget'
-  allow_users:
-    - 'john'
-    - 'bridget'
-    - 'vagrant'
-  sudoers:
-    - 'john'
-    - 'bridget'
-    - 'vagrant'
+  vagrant: true # TODO to use other way (automatically detected?)
+  worker: false # TODO to use another way?
+  versions:
+    submitty:
+      AnalysisTools: 'v.18.06.00'
+      Lichen: 'v21.08.01'
+      RainbowGrades: 'v21.06.01'
+      Tutorial: 'v20.10.01'
+      SysadminTools: 'v20.01.00'
+    java:
+      JUNIT: '4.12'
+      HAMCREST: '1.3'
+      JACOCO: '0.8.0'
+    drmemory:
+      TAG: 'release_2.3.0'
+      version: '2.3.0-1'
+
+  pip_require:
+    cryptography: 3.3.2
+
+    # For QR bulk upload
+    opencv-python: 3.4.9.33
+
+    # jsonschema & jsonref & pytz & tzlocal
+    pytz: 2021.1 # Submitty-util specific.
+
+    python-pam: 1.8.4
+    ruamel.yaml: 0.17.16
+    psycopg2-binary: 2.9.1
+    sqlalchemy: 1.3.24
+    pylint: 2.11.1
+    psutil: 5.8.0
+    python-dateutil: 2.8.2
+    watchdog: 2.1.5
+    xlsx2csv: 0.7.8
+    pause: 0.3
+    paramiko: 2.7.2
+    tzlocal: 2.1
+    PyPDF2: 1.26.0
+    distro: 1.6.0
+    jsonschema: 3.2.0
+    jsonref: 0.2
+    docker: 5.0.2
+
+    # For Lichen / Plagiarism Detection
+    parso: 0.8.2
+
+    # Python3 implementation of python-clang bindings (may not work < 6.0)
+    clang: 11.0
+
+    # Python libraries for QR bulk upload
+    pyzbar: 0.1.8
+    pdf2image: 1.16.0
+    numpy: 1.19.5
+
+    # python libraries for OCR for digit recognition
+    # newer versions are not supported on 18.04
+    onnx: 1.9.0
+    onnxruntime: 1.3.0
+
+  system_groups:
+    'submitty_daemon':
+      gid: '500'
+    'submitty_php':
+      gid: '501'
+    'submitty_daemonphp':
+      gid: '502'
+    'submitty_cgi':
+      gid: '503'
+    'submitty_daemoncgi':
+      gid: '504'
+    'submitty_course_builders':
+      #comment: "allows instructors/head TAs/course managers to write website customization files and run course management scripts."
+      gid: '505'
+
+  system_users:
+    'vagrant':
+      groups: ['sudo',] # NOTE doesn't vagrant do that already?
+    'submitty_daemon':
+      uid: '600'
+      comment: "First Last,RoomNumber,WorkPhone,HomePhone" # NOTE why this comment?
+      groups: ['submitty_daemon', 'submitty_daemonphp', 'submitty_daemoncgi', 'docker']
+      managehome: true
+      # worker: True
+      # worker_command: echo " Create ssh keys and copy to node" # TODO l310 install_system.sh
+
+      profile: "\n# set by puppet\numask 027\n"
+
+    'submitty_php':
+      uid: '601'
+      comment: "First Last,RoomNumber,WorkPhone,HomePhone" # NOTE why this comment?
+      groups: ['submitty_php', 'submitty_daemonphp',]
+      managehome: true
+      # worker: False
+      profile: "\n# set by puppet\numask 027\n"
+    'submitty_cgi':
+      uid: '603'
+      comment: "First Last,RoomNumber,WorkPhone,HomePhone" # NOTE why this comment?
+      groups:
+        - 'submitty_cgi'
+        - 'submitty_php'
+        - 'submitty_daemoncgi'
+        - 'shadow' # NOTE must be in the shadow group so that it has access to the local passwords for pam authentication
+        - 'docker' # NOTE to use the Docker python sdk
+      managehome: true
+      # worker: False
+      profile: "\n# set by puppet\numask 027\n"
+
+  untrusted: 60
+
+#     'john':
+#       comment: 'John Arundel'
+#       uid: '1010'
+#       sshkeys:
+#         - 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEA3ATqENg+GWACa2BzeqTdGnJhNoBer8x6pfWkzNzeM8Zx7/2Tf2pl7kHdbsiTXEUawqzXZQtZzt/j3Oya+PZjcRpWNRzprSmd2UxEEPTqDw9LqY5S2B8og/NyzWaIYPsKoatcgC7VgYHplcTbzEhGu8BsoEVBGYu3IRy5RkAcZik= john@susie'
+#     'bridget':
+#       comment: 'Bridget X. Zample'
+#       uid: '1011'
+#       sshkeys:
+#         - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCiTvHgzkf9TGBIpnIUBRbsWaRNBqzrLY/OoQpzqprGFLuTzzb8MaGI9Q6GPIhil5HyXE7PWPyuwcBA4mJhIHBXWqQC5o59cdtrkgJwAybSK7z5oVt67B0qieDG/cbasxr52nMAJC3dBEF4W1s69VSq5+wLFD01iW= bridget'
+#   allow_users:
+#     - 'john'
+#     - 'bridget'
+#     - 'vagrant'
+#   sudoers:
+#     - 'john'
+#     - 'bridget'
+#     - 'vagrant'
+#
