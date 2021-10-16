@@ -2,6 +2,7 @@
   vagrant: true # TODO to use other way (automatically detected?)
   worker: false # TODO to use another way?
   submission_port: 1511 # is 80 by default and this is only for submitty?
+  submission_url: 'http://192.168.56.101' # TODO this is for vagrant.
   submitty:
     repository: /usr/local/submitty/GIT_CHECKOUT/Submitty
     install: /usr/local/submitty
@@ -11,6 +12,7 @@
     admin_email: my_email@domain.com
   versions:
     submitty:
+      Submitty: 'v21.09.04'
       AnalysisTools: 'v.18.06.00'
       Lichen: 'v21.08.01'
       RainbowGrades: 'v21.06.01'

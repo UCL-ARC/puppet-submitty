@@ -33,15 +33,6 @@ package { [
 include distribution_dependencies
 include ntp
 
-class { 'postgresql::globals':
-  manage_package_repo => true,
-  version             => '12', # NOTE it should be 12.8
-}
-
-class { 'postgresql::server':
-}
-
-
 include my_apache
 
 
