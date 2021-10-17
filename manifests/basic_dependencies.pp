@@ -96,18 +96,26 @@ include 'docker'
 
 
 # Python dependencies
-
-class pypackage {
-  $pip_require = lookup('pip_require', Hash)
-  $pip_require.each | String $pippacakage, String $version | {
-    package { $pipppackage:
-      ensure   => $version,
-      provider => 'pip',
-    }
-
+$pip_require = lookup('pip_require', Hash)
+$pip_require.each | String $pippackage, String $version | {
+  package { "pip_${pippackage}":
+    name => "${pippackage}",
+    ensure   => $version,
+    provider => 'pip',
   }
 
 }
+if lookup('vagrant') {
+  $pip_require_vagrant = lookup('pip_require_vagrant', Hash)
+  $pip_require_vagrant.each | String $pippackage, String $version | {
+    package { "pip_${pippackage}":
+      name => "${pippackage}",
+      ensure   => $version,
+      provider => 'pip',
+    }
+  }
+}
+
 
 # TODO - add java r10k and dependencies
 # class { 'java':

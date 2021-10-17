@@ -45,14 +45,13 @@ class my_apache {
     $hostname = "localhost"
     $serveradmin = "ADMIN@DOMAIN.HERE"
 
-    $submission_port = lookup("submission_port", Integer)
+    $submission_port = lookup("submitty.submission.port", Integer)
     apache::listen { "$submission_port": }
 
-    $submitty_dirs = ['/usr/local/submitty',
-                      '/usr/local/submitty/site',
-                      '/usr/local/submitty/site/public',]
-    file {$submitty_dirs:
+    $submitty_dirs = ['site', 'site/public']
+    file {$submitty_dirs.map | $item | {join([lookup('submitty.directories.install.path'), $item], '/')}:
       ensure => 'directory',
+      require => File[lookup('submitty.directories.install.path')],
     }
     apache::vhost { 'submitty':
       # ip      => '*',
@@ -151,7 +150,7 @@ class my_apache {
       #error_log_destination => '${APACHE_LOG_DIR}/submitty.log',
       # custom log set alone, this is what we want
       # CustomLog ${APACHE_LOG_DIR}/submitty.log combined
-      require => File[$submitty_dirs]
+      require => File[join([lookup('submitty.directories.install.path'), "site", "public"], '/')],
       # directory => {'allow_override' => "None",}
     }
   } else {
@@ -161,9 +160,11 @@ class my_apache {
 
   }
 
-  $suexec_site = join([lookup('submitty', Hash)['install'], 'site/'], '/')
+  $suexec_site = join([lookup('submitty.directories.install.path'), 'site/'], '/')
   File{ 'submitty-suexec':
     path => '/etc/apache2/suexec/www-data',
+    # This doesn't work under contetn
+    # %{join([lookup('submitty.directories.install.path'), 'site/'], '/')}
     content => "${suexec_site}
 cgi-bin
 ",
@@ -176,9 +177,9 @@ cgi-bin
 
   # NOTE - was it supposed to be different?
   if lookup(vagrant) {
-    $nginx_port = 8443
+    $nginx_port = lookup("submitty.websocket_port", Integer)
   } else {
-    $nginx_port = 8443
+    $nginx_port = lookup("submitty.websocket_port", Integer)
   }
 
   # TODO it also creates index, and access and error logs.

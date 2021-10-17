@@ -25,6 +25,8 @@ include pam
 include my_postgres
 include download_repositories
 include local_clang
+include submitty_config
+
 
   file { '/tmp/facts.yaml':
     content => inline_template(' <%= scope.to_hash.reject { |k,v| !( k.is_a?(String) && v.is_a?(String) ) }.to_yaml %>'),
@@ -90,7 +92,7 @@ lookup('system_users', Hash, 'hash').each | String $username, Hash $attrs | {
   }
 }
 
-$data = Integer[0, lookup('untrusted', Integer) - 1]
+$data = Integer[0, lookup('untrusted.number', Integer) - 1]
 $data.each | Integer $value | {
   $userid = sprintf("%<y>02d", { 'y' => $value })
   group {"untrusted${userid}":
@@ -98,25 +100,12 @@ $data.each | Integer $value | {
   }
   user {"untrusted${userid}":
     ensure => present,
-    uid => 900 + $value,
-    gid => 900 + $value,
+    uid => lookup('untrusted.start_uid', Integer) + $value,
+    gid => lookup('untrusted.start_uid', Integer) + $value,
     home => '/tmp', # Home dir is not created
     comment => "Unstrusted user ${value}",
     require => Group["untrusted${userid}"],
   }
-}
-
-## Submitty data
-$data_dir = lookup('submitty', Hash)['data_dir']
-$data_dirs = ['', 'courses', 'instructors']
-file {$data_dirs.map | $item | {join([$data_dir, $item], '/')}:
-  ensure => directory,
-}
-
-file {"${data_dir}/instructors/valid":
-  ensure => present,
-  # FIXME: it still needs the users that are not system users
-  content => join(sort(lookup('system_users', Hash, 'hash').map |$key, $value| {$key}), "\n")
 }
 
 

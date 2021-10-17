@@ -11,19 +11,27 @@
   - Start vagrant (using focal/64) (to test on centos/8 with the other box) (M-m a t v V) + terminal (M-m a t v t)
     - vagrant_provision installs puppet + runs the production environment
     - Added path to root for installed gems on Vagrant
+  - become sudo and get into the puppet directory ~:/etc/puppetlabs/code/environments/production#~
   - generate dependencies with ~generate-puppetfile -p ./Puppetfile~ and run the last two commands from provision (r10k install + apply)
     - ~/opt/puppetlabs/puppet/bin/r10k puppetfile install --verbose~
     - ~/opt/puppetlabs/puppet/bin/puppet apply --environment=production $(pwd)/manifests --verbose~
-  - Problems
-    - php: ~php -r 'print PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;'~ shows that something is not right (warning xdebug as part of zend)
-      - Also it shows a problem with ds, loading before json: ~/etc/php/7.4/cli/conf.d~ solved by moving json to 19.
-      - 'ini-prefix' is not working? It's renamed... but not in the soft links directory.
+    - ~/opt/puppetlabs/puppet/bin/puppet lookup submitty.install~ shows the output
+    - Test databases were created: ~su -c 'psql -U submitty_dbuser -d submitty' postgres~ ~\dt~ ~\d users~
+    - Test puppet commands: puppet apply --noop -e '$a = ['234', 'asdf'] node default { ($a + ['poiu', '3234']).map | $item | { notice($item) } }'
   - Questions
-    - can we have if blocks in hiera yaml file?
+    - can we have if blocks in hiera yaml file? (e.g., to separate vagrant/worker/etc...)
 
 ** Where are we now?
     - [X] r10k first dependencies!
-    - [ ] [2021-10-09 Sat 16:28] going here:  [[file:~/Documents/Work/RSDG/Projects/Teaching/submitty_stuff/Submitty/.setup/install_system.sh::JAR SETUP][JAR Setup]]
+    - [ ] [2021-10-17 Sun 17:33] going here: [[file:~/Documents/Work/RSDG/Projects/Teaching/submitty_stuff/Submitty/.setup/install_system.sh::bash ${SUBMITTY_INSTALL_DIR}/.setup/INSTALL_SUBMITTY.sh clean skip_web_restart][INSTALL_SUBMITTY.sh]]; 721
+    - [ ] [2021-10-17 Sun 22:06] going here: [[file:~/Documents/Work/RSDG/Projects/Teaching/submitty_stuff/Submitty/.setup/INSTALL_SUBMITTY_HELPER.sh::replace necessary variables][Replace variables on copied CMakes]]; 387 -
+
+** Problems
+   - cannot ssh from vagrant!
+     - change /etc/ssh/sshd_config to don't use PAM. ~UsePAM no~
+   - php: ~php -r 'print PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;'~ shows that something is not right (warning xdebug as part of zend)
+      - Also it shows a problem with ds, loading before json: ~/etc/php/7.4/cli/conf.d~ solved by moving json to 19.
+      - 'ini-prefix' is not working? It's renamed... but not in the soft links directory.
 
 ** Submitty script map
    #+begin_src artist
@@ -59,12 +67,36 @@
                                 |                    |              |                      |
                                 |                    |              |Install npm           |
                                 |                    |              +----------------------|
-                                +--------------------+              |If Vagrant            |
-                                                                    |   +------------------|
-                                                                    |.  |Install Haskell   |
-                                                                    +---+------------------+
-
-
+                                |                    |              |If Vagrant            |
+                                |                    |              |   +------------------|
+                                |                    |              |.  |Install Haskell   |
+                                |                    |              +---+------------------+
+                                |                    |
+                                |                    |
+                                |                    |
+                                |                    |
+                                |                    |
+                                |                    |
+                                |                    |
+                                |                    |
+                                |                    |
+                                |                    |
+                                |                    |            +---------------------------------+
+                                |              (635) |----------->|  CONFIGURE_SUBMITTY.py          |
+                                |                    |            +---------------------------------+
+                                |                    |            |                                 |
+                                |                    |            | o Genearates json files         |
+                                |                    |            |   o submitty_conf.json          |
+                                +--------------------+            |   o email.json                  |
+                                                                  |   o submitty_admin.json         |
+                                                                  |   o secrets_submity_php.json    |
+                                                                  |   o submitty_users.json         |
+                                                                  |   o submitty_json               |
+                                                                  |   o database.json               |
+                                                                  |   o autograding_workers.json    |
+                                                                  |   o autograding_containers.json |
+                                                                  |                                 |
+                                                                  +---------------------------------+
    #+end_src
 
 * README repo

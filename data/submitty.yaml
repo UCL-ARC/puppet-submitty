@@ -1,0 +1,276 @@
+---
+  # FIXME add users as variables?
+  submitty_configuration:
+    submitty_install_dir: "%{lookup('submitty.directories.install.path')}"
+    submitty_repository: "%{lookup('submitty.directories.repository.path')}/Submitty"
+    submitty_data_dir: "%{lookup('submitty.directories.data.path')}"
+    course_builders_group: 'submitty_course_builders' # FIXME add as variables?
+    num_untrusted: "%{lookup('untrusted.number')}"
+    first_untrusted_uid: "%{lookup('untrusted.start_uid')}"
+    first_untrusted_gid: "%{lookup('untrusted.start_uid')}"
+    num_grading_scheduler_workers: "%{lookup('submitty.scheduler_workers')}"
+    daemon_user: 'submitty_daemon'
+    daemon_uid: "%{lookup('system_users.submitty_daemon.uid')}"
+    daemon_gid: "%{lookup('system_groups.submitty_daemon.gid')}"
+    # site_log_path is a holdover name. This could more accurately be called the "log_path"
+    site_log_path: "%{lookup('submitty.directories.data.path')}/logs"
+    autograding_log_path: "%{lookup('submitty.directories.data.path')}/logs/autograding" # NOTE can we remove duplication?
+    # // worker if args.worker:
+    # supervisor_user: SUPERVISOR_USER
+    # worker: 1
+    # // no worker else
+    php_user: 'submitty_php'
+    cgi_user: 'submitty_cgi'
+    daemonphp_group: 'submitty_daemonphp'
+    daemoncgi_group: 'submitty_daemoncgi'
+    php_uid: "%{lookup('system_users.submitty_daemon.uid')}"
+    php_gid: "%{lookup('system_groups.submitty_daemonphp.gid')}"
+    database_host: "%{lookup('submitty.db.host')}"
+    database_port: "%{lookup('submitty.db.port')}"
+    database_user: "%{lookup('submitty.db.user')}"
+    database_password: "%{lookup('submitty.db.passwd')}"
+    timezone: "%{::timezone}" # NOTE is this the same format that submitty uses?
+    authentication_method: "%{lookup('submitty.authentication')}"
+    vcs_url: "%{lookup('submitty.url')}"
+    submission_url: "%{lookup('submitty.submission.url')}"
+    cgi_url: "%{lookup('submitty.submission.url')}/cgi-bin"
+    websocket_port: "%{lookup('submitty.websocket_port')}"
+    institution_name: "%{lookup('institution.name')}"
+    username_change_text: "%{lookup('submitty.user_change_text')}"
+    institution_homepage: "%{lookup('institution.url')}"
+    debugging_enabled: "%{lookup('submitty.debug')}"
+    worker: 0 # FIXME when adding workers
+
+  submitty_email:
+    email_enabled: false # default
+    email_user: "%{lookup('administrator.email_server.user')}"
+    email_password: "%{lookup('administrator.email_server.passwd')}"
+    email_sender: "%{lookup('administrator.email_server.sender')}"
+    email_reply_to: "%{lookup('administrator.email_server.reply_to')}"
+    email_server_hostname: "%{lookup('administrator.email_server.hostname')}"
+    email_server_port: "%{lookup('administrator.email_server.port')}"
+    email_internal_domain: "%{lookup('administrator.email_server.internal_domain')}"
+
+  submitty_admin: # // no worker
+    submitty_admin_username: "%{lookup('administrator.user')}"
+    submitty_admin_password: "%{lookup('administrator.passwd')}"
+
+  submitty_secrets_php: # // no worker # TODO
+    #   characters = string.ascii_letters + string.digits
+    session: 'bGTQp4kIj1Pg0d8J0mpmrcKcNArdDc8ypS5fvfidIMWTwXSTd6gCd5A0fUkxHkmT' # FIXME ''.join(secrets.choice(characters) for _ in range(64))
+
+  submitty_users:
+    num_grading_scheduler_workers: "%{lookup('submitty.scheduler_workers')}"
+    num_untrusted: "%{lookup('untrusted.number')}"
+    first_untrusted_uid: "%{lookup('untrusted.start_uid')}"
+    first_untrusted_gid: "%{lookup('untrusted.start_uid')}"
+    daemon_uid: "%{lookup('system_users.submitty_daemon.uid')}"
+    daemon_gid: "%{lookup('system_groups.submitty_daemon.gid')}"
+    daemon_user: 'submitty_daemon'
+    course_builders_group: 'submitty_course_builders'
+    # // not worker
+    php_uid: "%{lookup('system_users.submitty_daemon.uid')}"
+    php_gid: "%{lookup('system_groups.submitty_daemonphp.gid')}"
+    php_user: 'submitty_php'
+    cgi_user: 'submitty_cgi'
+    daemonphp_group: 'submitty_daemonphp'
+    daemoncgi_group: 'submitty_daemoncgi'
+    # // worker
+    # supervisor_user: SUPERVISOR_USER
+
+
+  submitty_submitty:
+    submitty_install_dir: "%{lookup('submitty.directories.install.path')}"
+    submitty_repository: "%{lookup('submitty.directories.repository.path')}/Submitty"
+    submitty_data_dir: "%{lookup('submitty.directories.data.path')}"
+    autograding_log_path: "%{lookup('submitty.directories.data.path')}/logs/autograding"
+    # site_log_path is a holdover name. This could more accurately be called the "log_path"
+    site_log_path: "%{lookup('submitty.directories.data.path')}/logs"
+    # // no worker
+    sys_admin_email: "%{lookup('administrator.email')}"
+    sys_admin_url:  "%{lookup('administrator.url')}"
+    submission_url: "%{lookup('submitty.submission.url')}"
+    vcs_url: "%{lookup('submitty.url')}"
+    cgi_url: "%{lookup('submitty.submission.url')}/cgi-bin"
+    websocket_port: "%{lookup('submitty.websocket_port')}"
+    institution_name: "%{lookup('institution.name')}"
+    username_change_text: "%{lookup('submitty.user_change_text')}"
+    institution_homepage: "%{lookup('institution.url')}"
+    timezone: "%{::timezone}" # NOTE is this the same format that submitty uses?
+    duck_special_effects: false
+    worker: false
+    # // worker
+    # worker: true
+
+  submitty_database:
+    authentication_method: "%{lookup('submitty.authentication')}"
+    database_host: "%{lookup('submitty.db.host')}"
+    database_port: "%{lookup('submitty.db.port')}"
+    database_user: "%{lookup('submitty.db.user')}"
+    database_password: "%{lookup('submitty.db.passwd')}"
+    debugging_enabled: "%{lookup('submitty.debug')}"
+
+  submitty_autograding_workers:
+    # # FIXME Create an array that calls all these files and reads attrs and content
+    # meta:
+    #   owner: 'submitty_php'
+    #   group: 'submitty_daemonphp'
+    primary:
+      capabilities:
+        - "default"     # Default
+        # - "cpp"        # sample_courses
+        # - "python"     # sample_courses
+        # - "et-cetera"  # sample_courses
+        # - "notebook"   # sample_courses
+      address: "localhost"
+      username: ""
+      num_autograding_workers: "%{lookup('submitty.scheduler_workers')}"
+      enabled: True
+    # submitty-worker: # worker_pair (only to create a worker in Vagrant
+    #   capabilities:
+    #     - "default"     # Default
+    #     # - "cpp"        # sample_courses
+    #     # - "python"     # sample_courses
+    #     # - "et-cetera"  # sample_courses
+    #     # - "notebook"   # sample_courses
+    #   address: "172.18.2.8"
+    #   username: "submitty"
+    #   num_autograding_workers: NUM_GRADING_SCHEDULER_WORKERS
+    #   enabled: True
+  submitty_autograding_containers:
+    default:
+      - "submitty/clang:6.0"
+      - "submitty/autograding-default:latest"
+      - "submitty/java:11"
+      - "submitty/python:3.6"
+      - "submittyrpi/csci1200:default"
+  extra_dirs:
+    courses: # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/courses"
+      mode: "2751"
+      owner: "root"
+      group: 'submitty_course_builders'
+    users:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/user_data"
+      mode: "2770"
+      owner: 'submitty_php'
+      group: 'submitty_php'
+    vcs: # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/vcs"
+      mode: "2770"
+      owner: 'submitty_php'
+      group: 'submitty_daemoncgi'
+    vcs-git:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/vcs/git"
+      mode: "2770"
+      owner: 'submitty_php'
+      group: 'submitty_daemoncgi'
+    logs:
+      path: "%{lookup('submitty.directories.data.path')}/logs"
+      owner: 'root'
+      group: 'submitty_course_builders'
+      mode: "2751"
+    logs-autograding:
+      path: "%{lookup('submitty.directories.data.path')}/logs/autograding"
+      owner: 'submitty_daemon'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-autograding-stack:
+      path: "%{lookup('submitty.directories.data.path')}/logs/autograding_stack_traces"
+      owner: 'submitty_daemon'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-access:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/access"
+      owner: 'submitty_php'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-bulk:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/bulk_uploads"
+      owner: 'submitty_daemon'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-emails:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/emails"
+      owner: 'submitty_daemon'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-creation:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/course_creation"
+      owner: 'submitty_daemon'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-rainbow:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/rainbow_grades"
+      owner: 'submitty_daemon'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-errors:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/site_errors"
+      owner: 'submitty_php'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-ta-grading:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/ta_grading"
+      owner: 'submitty_php'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-vcs:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/vcs_generation"
+      owner: 'submitty_daemon'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-psql:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/psql"
+      owner: 'postgres'
+      group: 'submitty_daemon'
+      mode: "2770" # FIXME changed on 291 and on 306 of INSTALL_SUBMITTY_HELPER.sh. Here is the combination.
+    logs-preferred:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/preferred_names"
+      owner: 'submitty_daemon'
+      group: 'submitty_daemon'
+      mode: "2750"
+    logs-ohq:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/office_hours_queue"
+      owner: 'submitty_php'
+      group: 'submitty_course_builders'
+      mode: "2750"
+    logs-docker:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/logs/docker"
+      owner: 'submitty_daemon'
+      group: 'submitty_daemonphp'
+      mode: "2750"
+    queue-to-be-graded:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/to_be_graded_queue"
+      owner: 'submitty_daemon'
+      group: 'submitty_daemonphp'
+      mode: "2770"
+    queue-daemon:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/daemon_job_queue"
+      owner: 'submitty_daemon'
+      group: 'submitty_daemonphp'
+      mode: "2770"
+    queue-in-progress:  # // No worker
+      path: "%{lookup('submitty.directories.data.path')}/in_progress_grading"
+      owner: 'submitty_daemon'
+      group: 'submitty_daemonphp'
+      mode: "2750"
+    tmp:
+      path: "%{lookup('submitty.directories.data.path')}/tmp"
+      owner: 'root'
+      group: 'root'
+      mode: "2511"
+    ###########################################################################
+    vendor:
+      path: "%{lookup('submitty.directories.install.path')}/vendor"
+      owner: 'root'
+      group: 'root'
+    vendor-include:
+      path: "%{lookup('submitty.directories.install.path')}/vendor/include"
+      owner: 'root'
+      group: 'root'
+    ###########################################################################
+    src:
+      path: "%{lookup('submitty.directories.install.path')}/src"
+      owner: 'root'
+      group: 'root'

@@ -1,7 +1,6 @@
 forge 'https://forge.puppet.com'
 
 # Modules discovered by generate-puppetfile
-mod 'trlinkin-nsswitch',     '2.2.0'
 mod 'ghoneycutt/pam',        '3.7.0'
 mod 'puppet/archive',        '6.0.1'
 mod 'puppet/epel',           '3.1.0'
@@ -20,8 +19,11 @@ mod 'puppetlabs/postgresql', '7.5.0'
 mod 'puppetlabs/powershell', '5.0.0'
 mod 'puppetlabs/pwshlib',    '0.10.1'
 mod 'puppetlabs/reboot',     '4.1.0'
+mod 'puppetlabs/rsync',      '1.1.3'
 mod 'puppetlabs/stdlib',     '8.1.0'
 mod 'puppetlabs/vcsrepo',    '5.0.0'
+mod 'puppetlabs/xinetd',     '3.3.0'
+mod 'trlinkin/nsswitch',     '2.2.0'
 # Discovered elements from existing Puppetfile
 # Modules from the Puppet Forge
 # mod 'puppetlabs/accounts', '1.1.0'

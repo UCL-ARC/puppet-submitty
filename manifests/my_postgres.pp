@@ -56,12 +56,6 @@ class my_postgres {
       order => 5,
     }
 
-    postgresql::server::role { 'submitty_dbuser':
-      password_hash => postgresql::postgresql_password('submitty_dbuser', 'submitty_dbuser'),
-      superuser => true,
-      createdb => true,
-      createrole => true,
-    }
     postgresql::server::role { 'vagrant':
       password_hash => postgresql::postgresql_password('vagrant', 'vagrant'),
       superuser => true,
@@ -73,6 +67,39 @@ class my_postgres {
     $extra = {}
     $extra_config = {}
   }
+
+  unless lookup(worker){
+    postgresql::server::role { lookup('submitty.db.user'):
+      password_hash => postgresql::postgresql_password(lookup('submitty.db.user'), lookup('submitty.db.passwd')),
+      superuser => true,
+      createdb => true,
+      createrole => true,
+    }
+
+    postgresql::server::database { 'submitty':
+      owner => lookup('submitty.db.user'),
+      require => Postgresql::Server::Role[lookup('submitty.db.user')],
+    }
+    postgresql::server::schema { 'public':
+      owner => lookup('submitty.db.user'),
+      require => Postgresql::Server::Role[lookup('submitty.db.user')],
+    }
+    # FIXME to pupetize migrator
+    # It creates a set of databases, not sure how to check that's done.
+    exec {'run_db_migration':
+      cwd => join([lookup('submitty.directories.repository.path'), 'Submitty'], '/'),
+      path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+      command => "python3 migration/run_migrator.py -e master -e system migrate --initial",
+      onlyif  => 'test ! $(su -c "psql -lqt | cut -d \| -f 1 | grep -w submitty || true" postgres)',
+      require => [ Postgresql::Server::Database['submitty'],
+                   Postgresql::Server::Schema['public'],
+                   File['submitty_users.json'],
+                   Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Submitty'], '/')],
+                   Package['pip_sqlalchemy'],
+                 ],
+    }
+
+}
 
 
 class { 'postgresql::globals':

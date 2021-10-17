@@ -8,3 +8,5 @@ defaults:
 hierarchy:
   - name: "Common defaults"
     path: "common.yaml"
+  - name: "Submitty defaults"
+    path: "submitty.yaml"
