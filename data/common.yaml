@@ -135,6 +135,7 @@
   system_users:
     'vagrant':
       groups: ['sudo',] # NOTE doesn't vagrant do that already?
+
     'submitty_daemon':
       uid: '600'
       comment: "First Last,RoomNumber,WorkPhone,HomePhone" # NOTE why this comment?

@@ -6,6 +6,7 @@
    - [ ] .bashrc for root? (install_system.sh)
    - [ ] Distros Ubuntu (doing 20.04), RHEL (doing CentOS 8), Debian (todo)
    - [ ] ntp service (done), does it by adding it?
+   - [ ] java junit: [[file:~/Documents/Work/RSDG/Projects/Teaching/submitty_stuff/Submitty/.setup/INSTALL_SUBMITTY_HELPER.sh::if \[ -x "$(command -v javac)" \]; then][junit tests]] installers
 
 * Steps
   - Start vagrant (using focal/64) (to test on centos/8 with the other box) (M-m a t v V) + terminal (M-m a t v t)
@@ -87,16 +88,41 @@
                                 |                    |            |                                 |
                                 |                    |            | o Genearates json files         |
                                 |                    |            |   o submitty_conf.json          |
-                                +--------------------+            |   o email.json                  |
-                                                                  |   o submitty_admin.json         |
-                                                                  |   o secrets_submity_php.json    |
-                                                                  |   o submitty_users.json         |
-                                                                  |   o submitty_json               |
-                                                                  |   o database.json               |
-                                                                  |   o autograding_workers.json    |
-                                                                  |   o autograding_containers.json |
-                                                                  |                                 |
-                                                                  +---------------------------------+
+                                |                    |            |   o email.json                  |
+                                |                    |            |   o submitty_admin.json         |
+                                |                    |            |   o secrets_submity_php.json    |
+                                |                    |            |   o submitty_users.json         |
+                                |                    |            |   o submitty_json               |
+                                |                    |            |   o database.json               |
+                                |                    |            |   o autograding_workers.json    |
+                                |                    |            |   o autograding_containers.json |
+                                |                    |            |   o INSTALL_SUBMITTY.sh         |
+                                |                    |            +---------------------------------+
+                                |                    |
+                                |                    |
+                                |                    |
+                                |              (721) |------      +----------------------------------+                         +-------------------------------------+
+                                |                    |      \---> | INSTALL_SUBMITTY.sh              |                         |   INSTALL_SUBMITTY_HELPER_BIN.sh    |
+                                |                    |            +----------------------------------+                     />  +-------------------------------------+
+                                |                    |            | INSTALL_SUBMITTY_HELPER.sh       |                   /-    |                                     |
+                                |                    |            +----------------------------------+                 /-      |                                     |
+                                |                    |            |                                  |               /-        |                                     |
+                                |                    |            |                                  |             /-          |                                     |
+                                |                    |            |                                  |          /--            |                                     |
+                                |                    |            |                                  |        /-               |                                     |
+                                |                    |            |                                  |      /-                 |                                     |
+                                |                    |            |                                  |    /-                   |                                     |
+                                |                    |            |                                  |  /-                     |                                     |
+                                |                    |            |                          (470)   |--                       |                                     |
+                                |                    |            |                                  |                         |                                     |
+                                |                    |            |                                  |                         |                                     |
+                                |                    |            |                                  |                         |                                     |
+                                |                    |            |                                  |                         |                                     |
+                                |                    |            +----------------------------------+                         |                                     |
+                                |                    |                                                                         |                                     |
+                                |                    |                                                                         +-------------------------------------+
+                                |                    |
+                                +--------------------+
    #+end_src
 
 * README repo

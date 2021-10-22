@@ -274,3 +274,70 @@
       path: "%{lookup('submitty.directories.install.path')}/src"
       owner: 'root'
       group: 'root'
+    ###########################################################################
+    bin: &bin
+      path: "%{lookup('submitty.directories.install.path')}/bin"
+      owner: 'root'
+      group: 'submitty_course_builders'
+      mode: '0755'
+    sbin: &sbin
+      path: "%{lookup('submitty.directories.install.path')}/sbin"
+      owner: 'root'
+      group: 'root'
+      mode: '0755'
+    autograder: &autograder
+      path: "%{lookup('submitty.directories.install.path')}/autograder"
+      #owner: 'root'
+      #group: 'root'
+      #mode: '0755'
+
+
+  replace_grad:
+    - Sample_CMakeLists.txt
+    - CMakeLists.txt
+    - system_call_check.cpp
+    - seccomp_functions.cpp
+    - execute.cpp
+
+  change_permissions:
+    bin_TA:
+      parent: *bin
+      files:
+        - grading_done.py
+        - left_right_parse.py
+        - read_iclicker_ids.py
+        - regrade.py
+        - extract_notes_page.py
+      options:
+        owner: 'root'
+        group: 'submitty_course_builders'
+        mode: '550'
+
+    bin_daemon:
+      parent: *bin
+      files:
+        - build_homework_function.sh
+        - make_assignments_txt_file.py
+        - make_generated_output.py
+        - config_syntax_check.py
+        - json_schemas
+        - json_schemas/complete_config_schema.json
+        - set_allowed_mins.py
+      options:
+        owner: 'submitty_daemon'
+        group: 'submitty_course_builders'
+        mode: '550'
+
+    bin_root:
+      parent: *bin
+      files:
+        - generate_repos.py
+      options:
+        owner: 'root'
+        group: 'root'
+        mode: '500'
+
+  rsync:
+    - bin
+    - sbin
+    - autograder

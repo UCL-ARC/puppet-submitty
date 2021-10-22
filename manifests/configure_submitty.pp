@@ -163,12 +163,106 @@ class submitty_config {
     package_ensure => 'latest'
   }
 
+  rsync::get { 'nlohmann-json':
+    path => join([lookup('submitty.directories.install.path'), 'vendor'], '/' ),
+    source => join([lookup('submitty.directories.repository.path'), 'vendor', 'nlohmann', 'json', 'include'], '/' ),
+    recursive => true,
+    times => true,
+    require => [ Vcsrepo['nlohmann-json'], ],
+  }
+
   rsync::get { lookup("extra_dirs.src.path"):
     source  => join([lookup('submitty.directories.repository.path'), 'Submitty', 'grading'], '/'),
     require => File[ lookup("extra_dirs.src.path") ],
     recursive => true,
     times => true,
   }
+  file { 'replace_fillin':
+    path => join([lookup('submitty.directories.install.path'), 'src', 'grading', 'replace_fillin.sh'], '/'),
+    ensure => present,
+    content => epp("profile/submitty/grading/replace_fillin.sh.epp",
+                   {
+                     'submitty_install_dir' => lookup('submitty.directories.install.path'),
+                     'submitty_data_dir' => lookup('submitty.directories.data.path'),
+                     'num_untrusted' => lookup('untrusted.number'),
+                     'first_untrusted_uid' => lookup('untrusted.start_uid'),
+                     'first_untrusted_gid' => lookup('untrusted.start_uid'),
+                     'daemon_uid' => lookup('system_users.submitty_daemon.uid'),
+                     'daemon_gid' => lookup('system_groups.submitty_daemon.gid'),
+                   }),
+    mode => '0700',
+    require => [Rsync::Get[lookup("extra_dirs.src.path")],]
+  }
+
+  lookup("replace_grad").each | String $filename | {
+    exec {"fix_${filename}":
+      path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+      cwd => join([lookup('submitty.directories.install.path'), 'src', 'grading'], '/'),
+      command => "bash replace_fillin.sh ${filename}",
+      onlyif => "grep  '__FILLIN__' ${filename}",
+      require => [File["replace_fillin"],]
+    }
+  }
+
+  file {'lib_dir':
+    path => join([lookup('submitty.directories.install.path'), 'src', 'grading', 'lib'], '/'),
+    ensure => directory,
+    require => [Rsync::Get[lookup("extra_dirs.src.path")],]
+  }
+
+  exec {"compile_grading":
+    path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+    cwd => join([lookup('submitty.directories.install.path'), 'src', 'grading', 'lib'], '/'),
+    command => "cmake .. && make",
+    creates => join([lookup('submitty.directories.install.path'), 'src', 'grading', 'lib', 'Makefile'], '/'),
+    onlyif => "test ! -f Makefile",
+    require => [File["lib_dir"],
+                Exec["fix_execute.cpp"],
+                Rsync::Get['nlohmann-json'],
+               ]
+  }
+
+  file { "submitty_router":
+    path => join([lookup('submitty.directories.install.path'), 'src', 'grading', 'python', 'submitty_router.py'], '/'),
+    ensure => file,
+    group => 'submitty_daemon',
+    mode => '674',
+    require => [Exec['compile_grading'],],
+  }
+
+
+  unless lookup('worker') {
+    rsync::get { 'autograding_examples':
+      path => lookup('submitty.directories.install.path'),
+      source  => join([lookup('submitty.directories.repository.path'), 'Submitty', 'more_autograding_examples'], '/'),
+      recursive => true,
+      times => true,
+    }
+  }
+
+  # HELPER BIN
+  lookup("rsync").each | String $directory | {
+    rsync::get { "${directory}-files":
+      # path => lookup('submitty.directories.install.path'),
+      path => lookup("extra_dirs.${directory}.path"),
+      source  => join([lookup('submitty.directories.repository.path'), 'Submitty', $directory, '*'], '/'),
+      recursive => true,
+      times => true,
+      require => File[ lookup("extra_dirs.${directory}.path") ],
+    }
+  }
+
+  lookup("change_permissions").each | String $group, Hash $permissions | {
+    $permissions['files'].each | String $filename | {
+      file {"perm_${filename}":
+        path => join([$permissions['parent']['path'], "${filename}"], '/'),
+        # ensure => file,
+        * => $permissions['options'],
+        require => [Rsync::Get['bin-files'], ],
+      }
+    }
+  }
+
 
 
 
