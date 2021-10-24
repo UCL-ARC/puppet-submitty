@@ -48,11 +48,6 @@ class my_apache {
     $submission_port = lookup("submitty.submission.port", Integer)
     apache::listen { "$submission_port": }
 
-    $submitty_dirs = ['site', 'site/public']
-    file {$submitty_dirs.map | $item | {join([lookup('submitty.directories.install.path'), $item], '/')}:
-      ensure => 'directory',
-      require => File[lookup('submitty.directories.install.path')],
-    }
     apache::vhost { 'submitty':
       # ip      => '*',
       port    => $submission_port,

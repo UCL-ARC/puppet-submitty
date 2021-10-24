@@ -1,0 +1,77 @@
+<%- |
+    String $submitty_install_dir,
+    | -%>
+#!/usr/bin/env bash
+# File created by Puppet
+# Using extracts from Submitty/.setup/install_submitty/install_site.sh
+
+NODE_FOLDER=<%= $submitty_install_dir %>/site/node_modules
+VENDOR_FOLDER=<%= $submitty_install_dir %>/site/public/vendor
+
+# fontawesome
+    mkdir -p ${VENDOR_FOLDER}/fontawesome/css
+    cp ${NODE_FOLDER}/@fortawesome/fontawesome-free/css/all.min.css ${VENDOR_FOLDER}/fontawesome/css/all.min.css
+    cp -R ${NODE_FOLDER}/@fortawesome/fontawesome-free/webfonts/ ${VENDOR_FOLDER}/fontawesome/
+
+# bootstrap
+    cp -R ${NODE_FOLDER}/bootstrap/dist/ ${VENDOR_FOLDER}/bootstrap
+
+# chosen.js
+    cp -R ${NODE_FOLDER}/chosen-js ${VENDOR_FOLDER}/chosen-js
+
+# codemirror
+    mkdir -p  ${VENDOR_FOLDER}/codemirror/theme
+    cp -R ${NODE_FOLDER}/codemirror/mode/ ${VENDOR_FOLDER}/codemirror
+    cp -R ${NODE_FOLDER}/codemirror/addon ${VENDOR_FOLDER}/codemirror/addon
+    cp ${NODE_FOLDER}/codemirror/lib/codemirror.{js,css} ${VENDOR_FOLDER}/codemirror/
+    cp ${NODE_FOLDER}/codemirror/theme/{monokai,eclipse}.css ${VENDOR_FOLDER}/codemirror/theme
+
+# codemirror-spell-checker
+    mkdir ${VENDOR_FOLDER}/codemirror-spell-checker
+    cp ${NODE_FOLDER}/codemirror-spell-checker/dist/spell-checker.min.{js,css} ${VENDOR_FOLDER}/codemirror-spell-checker
+
+# flatpickr
+    mkdir -p ${VENDOR_FOLDER}/flatpickr/plugins/shortcutButtons
+    cp -R ${NODE_FOLDER}/flatpickr/dist/* ${VENDOR_FOLDER}/flatpickr
+    # shortcut-buttons-flatpickr
+    cp -R ${NODE_FOLDER}/shortcut-buttons-flatpickr/dist/* ${VENDOR_FOLDER}/flatpickr/plugins/shortcutButtons
+
+# jquery
+    mkdir ${VENDOR_FOLDER}/jquery
+    cp ${NODE_FOLDER}/jquery/dist/jquery.min.* ${VENDOR_FOLDER}/jquery
+    # jquery.are-you-sure
+    mkdir ${VENDOR_FOLDER}/jquery.are-you-sure
+    cp ${NODE_FOLDER}/jquery.are-you-sure/jquery.are-you-sure.js ${VENDOR_FOLDER}/jquery.are-you-sure
+    # jquery-ui
+    mkdir ${VENDOR_FOLDER}/jquery-ui
+    cp ${NODE_FOLDER}/jquery-ui-dist/*.min.* ${VENDOR_FOLDER}/jquery-ui
+    cp -R ${NODE_FOLDER}/jquery-ui-dist/images ${VENDOR_FOLDER}/jquery-ui/
+
+# pdfjs
+    mkdir ${VENDOR_FOLDER}/pdfjs
+    cp ${NODE_FOLDER}/pdfjs-dist/build/pdf.min.js ${VENDOR_FOLDER}/pdfjs
+    cp ${NODE_FOLDER}/pdfjs-dist/build/pdf.worker.min.js ${VENDOR_FOLDER}/pdfjs
+    cp ${NODE_FOLDER}/pdfjs-dist/web/pdf_viewer.css ${VENDOR_FOLDER}/pdfjs/pdf_viewer.css
+    cp ${NODE_FOLDER}/pdfjs-dist/web/pdf_viewer.js ${VENDOR_FOLDER}/pdfjs/pdf_viewer.js
+    cp -R ${NODE_FOLDER}/pdfjs-dist/cmaps ${VENDOR_FOLDER}/pdfjs
+
+# plotly
+    mkdir ${VENDOR_FOLDER}/plotly
+    cp ${NODE_FOLDER}/plotly.js-dist/plotly.js ${VENDOR_FOLDER}/plotly
+
+    mkdir ${VENDOR_FOLDER}/mermaid
+    cp ${NODE_FOLDER}/mermaid/dist/*.min.* ${VENDOR_FOLDER}/mermaid
+
+    # pdf-annotate.js
+    cp -R "${NODE_FOLDER}/@submitty/pdf-annotate.js/dist" ${VENDOR_FOLDER}/pdf-annotate.js
+
+# twig.js
+    mkdir ${VENDOR_FOLDER}/twigjs
+    cp ${NODE_FOLDER}/twig/twig.min.js ${VENDOR_FOLDER}/twigjs/
+
+# jspdf
+    mkdir ${VENDOR_FOLDER}/jspdf
+    cp ${NODE_FOLDER}/jspdf/dist/jspdf.umd.min.js ${VENDOR_FOLDER}/jspdf/jspdf.min.js
+    cp ${NODE_FOLDER}/jspdf/dist/jspdf.umd.min.js.map ${VENDOR_FOLDER}/jspdf/jspdf.min.js.map
+
+touch copied_npm

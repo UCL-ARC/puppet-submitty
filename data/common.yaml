@@ -112,6 +112,14 @@
     # newer versions are not supported on 18.04
     onnx: "1.9.0"
     onnxruntime: "1.3.0"
+
+    # Lichen
+    # Java tokenization
+    javac_parser: "1.0.0"
+    # turn data into human readable format
+    humanize: "3.12.0"
+
+
   pip_require_vagrant:
     # Email catcher
     nullsmtpd: "0.5.1"
@@ -141,6 +149,7 @@
       comment: "First Last,RoomNumber,WorkPhone,HomePhone" # NOTE why this comment?
       groups: ['submitty_daemon', 'submitty_daemonphp', 'submitty_daemoncgi', 'docker']
       managehome: true
+      require: Class[docker]
       # worker: true
       # worker_command: echo " Create ssh keys and copy to node" # TODO l310 install_system.sh
 

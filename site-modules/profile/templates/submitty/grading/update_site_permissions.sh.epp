@@ -1,0 +1,50 @@
+<%- |
+    String $submitty_install_dir,
+    | -%>
+#!/usr/bin/env bash
+# File created by Puppet
+# Using extracts from Submitty/.setup/install_submitty/install_site.sh
+
+set_permissions () {
+    local fullpath=$1
+    filename=$(basename -- "$fullpath")
+    extension="${filename##*.}"
+    # filename="${filename%.*}"
+    case "${extension}" in
+        css|otf|jpg|png|ico|txt|twig|map)
+            chmod 444 ${fullpath}
+            ;;
+        bcmap|ttf|eot|svg|woff|woff2|js|cgi)
+            chmod 445 ${fullpath}
+            ;;
+        html)
+            if [ ${fullpath} != <%= $submitty_install_dir %>/site/public/index.html ]; then
+                chmod 440 ${fullpath}
+            fi
+            ;;
+        *)
+            chmod 440 ${fullpath}
+            ;;
+    esac
+}
+export -f set_permissions
+
+# FIXME remove the commented lines!
+# find <%= $submitty_install_dir %>/site/public | xargs -I {} bash -c 'set_permissions "$@"' _ {}
+# find <%= $submitty_install_dir %>/site/public/vendor -type d -exec chmod 551 {} \;
+
+# find <%= $submitty_install_dir %>/site/vendor        -type d -exec chmod 551 {} \;
+# find <%= $submitty_install_dir %>/site/vendor        -type f -exec chmod 440 {} \;
+
+# find <%= $submitty_install_dir %>/site/node_modules  -type d -exec chmod 551 {} \;
+# find <%= $submitty_install_dir %>/site/node_modules  -type f -exec chmod 440 {} \;
+
+# find <%= $submitty_install_dir %>/site/cache         -type d -exec chmod u+w {} \;
+
+# chmod -R 555 <%= $submitty_install_dir %>/SubmittyAnalysisTools
+# chown -R submitty_daemon:submitty_course_builders <%= $submitty_install_dir %>/SubmittyAnalysisTools
+
+# find <%= $submitty_install_dir %>/GIT_CHECKOUT/RainbowGrades -type d -exec chmod o+rx {} \;
+# find <%= $submitty_install_dir %>/GIT_CHECKOUT/RainbowGrades -type f -exec chmod o+r {} \;
+
+# find <%= $submitty_install_dir %>/Lichen/bin -exec chmod 755 {} \;

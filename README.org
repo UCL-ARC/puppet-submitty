@@ -7,6 +7,7 @@
    - [ ] Distros Ubuntu (doing 20.04), RHEL (doing CentOS 8), Debian (todo)
    - [ ] ntp service (done), does it by adding it?
    - [ ] java junit: [[file:~/Documents/Work/RSDG/Projects/Teaching/submitty_stuff/Submitty/.setup/INSTALL_SUBMITTY_HELPER.sh::if \[ -x "$(command -v javac)" \]; then][junit tests]] installers
+   - [ ] What's the best way to handle updates? How to separate what can be touched and what not (e.g. db)?
 
 * Steps
   - Start vagrant (using focal/64) (to test on centos/8 with the other box) (M-m a t v V) + terminal (M-m a t v t)
@@ -112,17 +113,48 @@
                                 |                    |            |                                  |        /-               |                                     |
                                 |                    |            |                                  |      /-                 |                                     |
                                 |                    |            |                                  |    /-                   |                                     |
-                                |                    |            |                                  |  /-                     |                                     |
+                                |                    |            |                                  |  /-                     |                                     |                      /install_submitty/
                                 |                    |            |                          (470)   |--                       |                                     |
                                 |                    |            |                                  |                         |                                     |
                                 |                    |            |                                  |                         |                                     |
                                 |                    |            |                                  |                         |                                     |
                                 |                    |            |                                  |                         |                                     |
-                                |                    |            +----------------------------------+                         |                                     |
-                                |                    |                                                                         |                                     |
-                                |                    |                                                                         +-------------------------------------+
-                                |                    |
-                                +--------------------+
+                                |                    |            |                                  |                         |                                     |
+                                |                    |            |                                  |                         |                                     |
+                                |                    |            |                                  |                         +-------------------------------------+
+                                |                    |            |                                  |
+                                +--------------------+            |                                  |                         +-------------------------------------+                  +-----------------------------------+
+                                                                  |                                  |                      /> |   INSTALL_SUBMITTY_HELPER_SITE.sh   |              /-> |   install_site.sh                 |
+                                                                  |                                  |                  /---   +-------------------------------------+        /-----    +-----------------------------------+
+                                                                  |                                  |              /---       |                                     |   /----          |                                   |
+                                                                  |                                  |          /---           |                           (11)      |---               |                                   |
+                                                                  |                                  |      /---               |                                     |                  |                                   |
+                                                                  |                                  |  /---                   |                                     |                  |                                   |
+                                                                  |                          (531)   |--                       |                                     |                  |                                   |
+                                                                  |                                  |                         |                                     |                  |                                   |
+                                                                  |                                  |                         |                                     |                  |                                   |
+                                                                  |                                  |                         |                                     |                  |                                   |
+                                                                  |                                  |                         |                                     |                  |                                   |
+                                                                  |                                  |                         +-------------------------------------+                  +-----------------------------------+
+                                                                  |                                  |
+                                                                  |                                  |
+                                                                  |                           (627)  |-------------            +-------------------------------------+
+                                                                  |                                  |             \---------->| Lichen/install_lichen.sh            |
+                                                                  |                                  |                         +-------------------------------------+
+                                                                  |                                  |                         | .                                   |
+                                                                  |                                  |                         |                                     |
+                                                                  |                                  |                         |                                     |
+                                                                  |                                  |                         |                                     |
+                                                                  |                                  |                         |                                     |
+                                                                  |                                  |                         |                                     |
+                                                                  |                                  |                         |                                     |
+                                                                  |                                  |                         +-------------------------------------+
+                                                                  |                                  |
+                                                                  |                                  |
+                                                                  +----------------------------------+
+
+
+
    #+end_src
 
 * README repo

@@ -274,6 +274,10 @@
       path: "%{lookup('submitty.directories.install.path')}/src"
       owner: 'root'
       group: 'root'
+    src-grading: &srcgrading
+      path: "%{lookup('submitty.directories.install.path')}/src/grading"
+      owner: 'root'
+      group: 'root'
     ###########################################################################
     bin: &bin
       path: "%{lookup('submitty.directories.install.path')}/bin"
@@ -287,19 +291,149 @@
       mode: '0755'
     autograder: &autograder
       path: "%{lookup('submitty.directories.install.path')}/autograder"
-      #owner: 'root'
-      #group: 'root'
-      #mode: '0755'
+      owner: 'root'
+      group: 'submitty_daemon'
+      mode: '0750'
+    setup: &setup
+      path: "%{lookup('submitty.directories.install.path')}/.setup"
+      owner: 'root'
+      group: 'submitty_course_builders'
+      mode: '751'
+    setup-bin: &setupbin
+      path: "%{lookup('submitty.directories.install.path')}/.setup/bin"
+      owner: 'root'
+      group: 'root'
+      mode: '0700'
+    site: &site
+      path: "%{lookup('submitty.directories.install.path')}/site"
+      owner: 'submitty_php'
+      group: 'submitty_php'
+      # mode: '0551'
+      # recurse: true
+    site-public: &sitepublic
+      path: "%{lookup('submitty.directories.install.path')}/site/public"
+      owner: 'submitty_php'
+      group: 'submitty_php'
+      # mode: '0551'
+      require:
+        - Rsync::Get[site-files]
+        - File[%{lookup('submitty.directories.install.path')}/site]
+    site-public-vendor: &sitepublicvendor
+      path: "%{lookup('submitty.directories.install.path')}/site/public/vendor"
+      owner: 'submitty_php'
+      group: 'submitty_php'
+      # mode: '0551'
+      require:
+        - File[%{lookup('submitty.directories.install.path')}/site/public]
+    site-vendor: &sitevendor
+      path: "%{lookup('submitty.directories.install.path')}/site/vendor"
+      owner: 'submitty_php'
+      group: 'submitty_php'
+      # recurse: true
+      # mode: '0740'
+      require:
+        - Rsync::Get[site-files]
+        - File[%{lookup('submitty.directories.install.path')}/site]
+    site-cgi: &sitecgi
+      path: "%{lookup('submitty.directories.install.path')}/site/cgi-bin"
+      owner: 'submitty_cgi'
+      group: 'submitty_cgi'
+      # recurse: true
+      # mode: '0550'
+      require:
+        - Rsync::Get[site-files]
+        - File[%{lookup('submitty.directories.install.path')}/site]
+    site-cache: &sitecache
+      path: "%{lookup('submitty.directories.install.path')}/site/cache"
+      owner: 'submitty_php'
+      group: 'submitty_php'
+      # mode: '0751'
+      # recurse: true
+      require:
+        - Rsync::Get[site-files]
+        - File[%{lookup('submitty.directories.install.path')}/site]
+    site-cache-twig: &sitecachetwig
+      path: "%{lookup('submitty.directories.install.path')}/site/cache/twig"
+      owner: 'submitty_php'
+      group: 'submitty_php'
+      # mode: '0751'
+      require:
+        - File[%{lookup('submitty.directories.install.path')}/site/cache]
+    site-cache-annotations: &sitecacheannotations
+      path: "%{lookup('submitty.directories.install.path')}/site/cache/annotations"
+      owner: 'submitty_php'
+      group: 'submitty_php'
+      # mode: '0751'
+      require:
+        - File[%{lookup('submitty.directories.install.path')}/site/cache]
+    site-node: &sitenode
+      path: "%{lookup('submitty.directories.install.path')}/site/node_modules"
+      owner: 'submitty_php'
+      group: 'submitty_php'
+      # mode: '0740' # makes this crazy after bpm runs.
+      # recurse: true
+      require:
+        - Rsync::Get[site-files]
+        - File[%{lookup('submitty.directories.install.path')}/site]
+    ########################################
+    AnalysisTools:
+      path: "%{lookup('submitty.directories.install.path')}/SubmittyAnalysisTools"
+      owner: 'submitty_daemon'
+      group: 'submitty_course_builders'
+    clang-ASTMatcher:
+      path: "%{lookup('submitty.directories.install.path')}/clang-llvm/src/llvm/tools/clang/tools/extra/ASTMatcher/"
+      require: Exec[set-clang]
+    clang-UnionTool:
+      path: "%{lookup('submitty.directories.install.path')}/clang-llvm/src/llvm/tools/clang/tools/extra/UnionTool/"
+      require: Exec[set-clang]
+    #################### Lichen
+    Lichen:
+      path: "%{lookup('submitty.directories.install.path')}/Lichen"
+      owner: 'root'
+      group: 'root'
+      mode: "755"
+    Lichen-vendor:
+      path: "%{lookup('submitty.directories.install.path')}/Lichen/vendor"
+      # owner: 'submitty_daemon'
+      # group: 'submitty_course_builders'
+    Lichen-vendor-nlohmann:
+      path: "%{lookup('submitty.directories.install.path')}/Lichen/vendor/nlohmann"
+      # owner: 'submitty_daemon'
+      # group: 'submitty_course_builders'
+    Lichen-bin: &lichenbin
+      path: "%{lookup('submitty.directories.install.path')}/Lichen/bin"
+      # owner: 'submitty_daemon'
+      # group: 'submitty_course_builders'
+    Lichen-tools:
+      path: "%{lookup('submitty.directories.install.path')}/Lichen/tools"
+      # owner: 'submitty_daemon'
+      # group: 'submitty_course_builders'
+    Lichen-tools-assignments:
+      path: "%{lookup('submitty.directories.install.path')}/Lichen/tools/assignments"
+      # owner: 'submitty_daemon'
+      # group: 'submitty_course_builders'
 
 
-  replace_grad:
-    - Sample_CMakeLists.txt
-    - CMakeLists.txt
-    - system_call_check.cpp
-    - seccomp_functions.cpp
-    - execute.cpp
+
+
+
+
+  replace:
+    grad:
+      parent: *srcgrading
+      files:
+        - Sample_CMakeLists.txt
+        - CMakeLists.txt
+        - system_call_check.cpp
+        - seccomp_functions.cpp
+        - execute.cpp
+    setup:
+      parent: *setup
+      files:
+        - untrusted_execute.c
 
   change_permissions:
+    # NOTE the name of each section needs to be dirname_group as dirname is used within the manifest.
     bin_TA:
       parent: *bin
       files:
@@ -308,10 +442,13 @@
         - read_iclicker_ids.py
         - regrade.py
         - extract_notes_page.py
+        - system_call_check.out
+        - calculate_extensions.out
       options:
         owner: 'root'
         group: 'submitty_course_builders'
         mode: '550'
+        require: Exec[compile_bin]  # Does this work?!😯
 
     bin_daemon:
       parent: *bin
@@ -337,7 +474,183 @@
         group: 'root'
         mode: '500'
 
+    sbin_wwwdata:
+      parent: *sbin
+      files:
+        - authentication.py
+      options:
+        owner: 'root'
+        group: 'www-data'
+        mode: '550'
+    sbin_all:
+      parent: *sbin
+      files:
+        - killall.py
+      options:
+        mode: '555'
+    sbin_daemon:
+      parent: *sbin
+      files:
+        - auto_rainbow_grades.py
+        - auto_rainbow_scheduler.py
+        - build_config_upload.py
+        - send_email.py
+        - generate_grade_summaries.py
+        - submitty_daemon_jobs
+        - shipper_utils # No worker ; workers is supervisor:supervisor
+      options:
+        owner: 'root'
+        group: 'submitty_daemon'
+        mode: '750'
+        recurse: true
+    sbin_untrust:
+      parent: *sbin
+      files:
+        - untrusted_execute
+      options:
+        owner: 'root'
+        group: 'submitty_daemon'
+        mode: '4550'
+        ensure: file
+        require: Exec[compile_bin]
+    site_composer:
+      parent: *site
+      files:
+        - composer.lock
+      options:
+        owner: 'submitty_php'
+        group: 'submitty_php'
+        mode: '440'
+        ensure: file
+        require: Exec[composer-dependencies]
+    site_package:
+      parent: *site
+      files:
+        - package-lock.json
+      options:
+        mode: '440'
+        ensure: file
+        require: Exec[composer-dependencies]
+
+
+    # sbin_call_check: # NOTE the permission gets setup on helper-bin, but the file is compiled into /bin not /sbin
+    #   parent: *sbin
+    #   files:
+    #     - system_call_check.out
+    #   options:
+    #     owner: 'root'
+    #     group: 'submitty_course_builders'
+    #     mode: '550'
+    #     ensure: file
+
+
+
   rsync:
-    - bin
-    - sbin
-    - autograder
+    bin:
+      options: {}
+    sbin:
+      options:
+        chmod: '500'
+    autograder:
+      options:
+        chown: "root:submitty_daemon"
+        chmod: '750'
+    site:
+      options:
+        exclude:
+          - 'tests'
+          - 'cache'
+          - 'vendor'
+          - 'node_modules/'
+          - 'phpstan.neon'
+          - 'phpstan-baseline.neon'
+          - '.eslintrc.json'
+          - '.eslintignore'
+          - 'cypress/'
+          - 'cypress.json'
+          - 'jest.config.js'
+          - '.babelrc.json'
+        chown: 'submitty_php:submitty_php'
+        chmod: '0751'
+    AnalysisTools:
+      repo: true # as different than Submitty
+      subdir: 'app'
+      options:
+        chown: 'submitty_daemon:submitty_course_builders'
+        chmod: '0555'
+
+
+
+
+
+
+  copy_setup_bin:
+      parent: *setupbin
+      files:
+        - reupload_old_assignments.py
+        - reupload_generate_csv.py
+        - track_git_version.py
+        - init_auto_rainbow.py
+      options:
+        owner: 'root'
+        group: 'root'
+        mode: '0700'
+
+  copy_analysis_compile:
+    parent_origin_path: "%{lookup('submitty.directories.repository.path')}/AnalysisTools/"
+    options:
+      owner: 'submitty_daemon'
+      group: 'submitty_course_builders'
+      mode: '0555'
+    groups:  # dirName_tag
+      commonAST_analysis:
+        files:
+          - astMatcher.py
+          - commonast.py
+          - unionToolRunner.py
+          - jsonDiff.py
+          - utils.py
+          - refMaps.py
+          - match.py
+          - eqTag.py
+          - context.py
+          - removeTokens.py
+          - jsonDiffSubmittyRunner.py
+          - jsonDiffRunner.py
+          - jsonDiffRunnerRunner.py
+          - createAllJson.py
+        dest_path: "%{lookup('submitty.directories.install.path')}/SubmittyAnalysisTools/"
+        require: File[%{lookup('submitty.directories.install.path')}/SubmittyAnalysisTools/]
+      commonAST_llvmUnion:
+        files:
+          - unionTool.cpp
+          - CMakeListsUnion.txt
+        dest_path: "%{lookup('submitty.directories.install.path')}/clang-llvm/src/llvm/tools/clang/tools/extra/UnionTool/"
+        require: File[%{lookup('submitty.directories.install.path')}/clang-llvm/src/llvm/tools/clang/tools/extra/UnionTool/]
+      commonAST_llvmMatcher:
+        files:
+          - ASTMatcher.cpp
+          - CMakeLists.txt
+        dest_path: "%{lookup('submitty.directories.install.path')}/clang-llvm/src/llvm/tools/clang/tools/extra/ASTMatcher/"
+        require: File[%{lookup('submitty.directories.install.path')}/clang-llvm/src/llvm/tools/clang/tools/extra/ASTMatcher/]
+      treeTool_tools:
+        files:
+          - make_tree_interactive.py
+          - treeTemplate1.txt
+          - treeTemplate2.txt
+        dest_path: "%{lookup('submitty.directories.install.path')}/SubmittyAnalysisTools/"
+        require: File[%{lookup('submitty.directories.install.path')}/SubmittyAnalysisTools/]
+
+  copy_lichen_tokenizer:
+      parent: *lichenbin
+      files:
+        # - plaintext/plaintext_tokenizer.c # FIXME change to py when updated to v21.10.00
+        - c/c_tokenizer.py
+        - python/python_tokenizer.py
+        - java/java_tokenizer.py
+        - mips/mips_tokenizer.py
+        - data.json
+      options:
+        owner: 'root'
+        group: 'root'
+        mode: '0755'

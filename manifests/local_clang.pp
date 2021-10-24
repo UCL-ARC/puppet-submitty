@@ -1,13 +1,14 @@
 class local_clang {
 
-  $clangdir =  join([lookup('submitty')['install'], "clang-llvm"], '/')
+  $clangdir =  join([lookup('submitty.directories.install.path'), 'clang-llvm'], '/')
   $clangsrc = join([$clangdir, 'src'], '/')
   $clangbuild = join([$clangdir, 'build'], '/')
   $clanginstall = join([$clangdir, 'install'], '/')
 
   $clang_dirs = [$clangdir, $clangsrc, $clangbuild, $clanginstall]
   file {$clang_dirs.map | $item | {$item}:
-    ensure => directory,
+    ensure  => directory,
+    require => File[lookup('submitty.directories.install.path')],
   }
 
   # NOTE It takes for ever an then doesn't work!
