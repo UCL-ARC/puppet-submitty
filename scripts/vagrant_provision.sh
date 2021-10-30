@@ -27,7 +27,7 @@ fi
 echo 'Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/opt/puppetlabs/bin:/opt/puppetlabs/puppet/bin"' >/etc/sudoers.d/puppet
 
 # Installs extra plugins for puppet
-plugins=(gpgme hiera-eyaml-gpg r10k generate-puppetfile)
+plugins=(gpgme hiera-eyaml-gpg r10k generate-puppetfile puppet-debugger)
 for plugin in "${plugins[@]}"; do
     /opt/puppetlabs/puppet/bin/gem install "${plugin}" --no-document
 done
