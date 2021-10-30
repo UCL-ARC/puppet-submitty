@@ -485,4 +485,28 @@ class submitty_config {
       }
     }
 
+    # NOTE If this needed for installation?
+    exec{'track-version':
+      path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+      cwd     =>  join([lookup('submitty.directories.install.path'), '.setup', 'bin'], '/'),
+      command => 'python3 track_git_version.py > /tmp/puppet_trac_version 2>&1',
+      require => [Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Submitty'], '/')],
+                  File[lookup('extra_dirs.config.path')],
+                 ],
+    }
+    # TODO Update to include the right versions and at the end.
+    notice("Installed Submitty version ${lookup('versions.submitty.Submitty')}")
+
+      # Create crons as per the template:
+      lookup('submitty_cron_jobs').each | String $group, Hash $options | {
+        cron {"cron_${group}":
+          * => $options,
+          require => [File[lookup('extra_dirs.sbin.path')],
+                      Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Submitty'], '/')],
+                     ],
+        }
+      }
+
+
+
 }

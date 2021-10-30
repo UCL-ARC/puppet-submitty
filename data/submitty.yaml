@@ -658,3 +658,19 @@
         owner: 'root'
         group: 'root'
         mode: '0755'
+
+  submitty_cron_jobs:
+    send_email:
+      command: python3 %{lookup(submitty.directories.install.path)}/sbin/send_email.py
+      user: 'submitty_daemon'
+    rainbow_schedule:
+      command: python3 %{lookup(submitty.directories.install.path)}/sbin/auto_rainbow_scheduler.py
+      user: 'submitty_daemon'
+      hour: 2
+      minute: 0
+    preferred_name:
+      command: "php %{lookup(submitty.directories.install.path)}/sbin/preferred_name_logging.php -m prod >/dev/null &2>1"
+      user: 'submitty_daemon'
+      hour: 2
+      minute: 5
+
