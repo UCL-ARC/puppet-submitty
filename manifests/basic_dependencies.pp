@@ -132,28 +132,31 @@ $package_source      = "${repository_url}/${archive_name}"
 $package_directory   = "${install_path}/${package_name}-${package_version}"
 $install_command     = "bash configure; make; make install"
 $package_sample      = "/usr/local/include/tclap/Arg.h"
+$tclap_installed     = inline_template("<%= File.exist?('$package_sample') %>")
 
-archive { $archive_name:
-  path         => "/tmp/${archive_name}",
-  source       => $package_source,
-  extract      => true,
-  extract_path => $install_path,
-  creates      => "${package_directory}",
-  cleanup      => true,
+unless ($tclap_installed) {
+  # onlyif       => "test ! -f ${package_sample}",
+  archive { $archive_name:
+    path         => "/tmp/${archive_name}",
+    source       => $package_source,
+    extract      => true,
+    extract_path => $install_path,
+    creates      => "${package_directory}",
+    cleanup      => true,
+  }
+  file_line { 'tclap_make':
+    ensure => present,
+    path   => "${install_path}/${package_name}-${package_version}/Makefile.in",
+    line   => "SUBDIRS = include docs msc config",
+    match  => 'SUBDIRS = include examples docs tests msc config',
+    require => Archive["${archive_name}"],
+  }
+  exec { "Install ${package_name} ${package_version}":
+    path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+    cwd     => $package_directory,
+    command => $install_command,
+    creates => $package_sample,
+    require => File_line['tclap_make'],
+  }
 }
-file_line { 'tclap_make':
-  ensure => present,
-  path   => "${install_path}/${package_name}-${package_version}/Makefile.in",
-  line   => "SUBDIRS = include docs msc config",
-  match  => 'SUBDIRS = include examples docs tests msc config',
-  require => Archive["${archive_name}"],
-}
-exec { "Install ${package_name} ${package_version}":
-  path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
-  cwd     => $package_directory,
-  command => $install_command,
-  creates => $package_sample,
-  require => File_line['tclap_make'],
-}
-
 }
