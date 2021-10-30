@@ -522,6 +522,19 @@ class submitty_config {
         }
       }
 
-
-
+      # Creates the untrusted directories
+      $data = Integer[0, lookup('untrusted.number', Integer) - 1]
+      $data.each | Integer $value | {
+        $userid = sprintf('untrusted%<y>02d', { 'y' => $value })
+        file {"autograding_tmp_${userid}":
+          ensure  => 'directory',
+          path    => join([lookup('extra_dirs.autograding_tmp.path'), $userid], '/'),
+          owner   => 'submitty_daemon',
+          group   => $userid,
+          mode    => '0770',
+          require => [File[lookup('extra_dirs.autograding_tmp.path')],
+                      User[$userid],
+                      ]
+        }
+      }
 }

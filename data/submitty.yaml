@@ -264,6 +264,11 @@
       owner: 'root'
       group: 'root'
       mode: "2511"
+    autograding_tmp:
+      path: "%{lookup('submitty.directories.data.path')}/autograding_tmp"
+      owner: 'root'
+      group: 'root'
+      mode: "0511"
     ###########################################################################
     vendor:
       path: "%{lookup('submitty.directories.install.path')}/vendor"
