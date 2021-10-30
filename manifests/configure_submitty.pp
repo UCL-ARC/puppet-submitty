@@ -508,5 +508,20 @@ class submitty_config {
       }
 
 
+      # Systemd configurations # TODO set as templates and pass the right variables
+
+      lookup('services.files').each | String $service | {
+        systemd::unit_file { "${service}.service":
+          ensure => file,
+          source => "puppet:///modules/profile/etc/systemd/system/${service}.service",
+          enable => true,
+          *      => lookup('services.properties'),
+        }
+        ~> service {$service :
+          ensure => 'running',
+        }
+      }
+
+
 
 }

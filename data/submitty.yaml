@@ -681,9 +681,20 @@
       hour: 2
       minute: 5
 
+
   sudo::configs:
     submitty:
         source: 'puppet:///modules/profile/etc/sudoers.d/submitty_sudoers' # FIXME cna we create a template?
     submitty_builders:
       source:  'puppet:///modules/profile/etc/sudoers.d/submitty_sudoers_noworker' # FIXME cna we create a template?
 
+  services:
+    files:
+      - submitty_autograding_shipper
+      - submitty_autograding_worker
+      - submitty_daemon_jobs_handler
+      - submitty_websocket_server
+    properties:
+      owner: 'submitty_daemon'
+      group: 'submitty_daemon'
+      mode : '0444'
