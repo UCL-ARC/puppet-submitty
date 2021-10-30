@@ -145,6 +145,10 @@
       - "submitty/python:3.6"
       - "submittyrpi/csci1200:default"
   extra_dirs:
+    config: &config
+      path: "%{lookup('submitty.directories.install.path')}/config"
+      group: 'submitty_course_builders'
+      mode: '0755'
     courses: # // No worker
       path: "%{lookup('submitty.directories.data.path')}/courses"
       mode: "2751"

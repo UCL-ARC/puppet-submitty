@@ -43,18 +43,6 @@ class submitty_config {
     content => join(sort(lookup('system_users', Hash, 'hash').map |$key, $value| {$key}), "\n")
   }
 
-  ##############################################################################
-  # make the installation config directory
-  ##############################################################################
-  file {'config_install_dir':
-    ensure  => directory,
-    path    => join([lookup('submitty.directories.install.path'), 'config'], '/'),
-    owner   => 'root',
-    group   => 'submitty_course_builders',
-    mode    => '0755',
-    require => File[lookup('submitty.directories.install.path')],
-  }
-
   file { 'submitty_conf.json':
     ensure  => file,
     path    => join([lookup('submitty.directories.install.path'), '.setup', 'submitty_conf.json'], '/'),
@@ -73,7 +61,7 @@ class submitty_config {
     group   => 'submitty_daemonphp',
     mode    => '0400',
     content => to_json_pretty(lookup('submitty_email')),
-    require => File['config_install_dir'],
+    require => File[lookup('extra_dirs.config.path')],
   }
 
   file { 'submitty_admin.json':
@@ -83,7 +71,7 @@ class submitty_config {
     group   => 'submitty_daemon',
     mode    => '0400',
     content => to_json_pretty(lookup('submitty_admin')),
-    require => File['config_install_dir'],
+    require => File[lookup('extra_dirs.setup.path')],
   }
 
   file { 'secrets_submitty_php.json':
@@ -93,7 +81,7 @@ class submitty_config {
     group   => 'submitty_php',
     mode    => '0440',
     content => to_json_pretty(lookup('submitty_secrets_php')),
-    require => File['config_install_dir'],
+    require => File[lookup('extra_dirs.setup.path')],
   }
 
   file { 'submitty_users.json':
@@ -103,7 +91,7 @@ class submitty_config {
     group   => 'submitty_daemonphp', # if worker submitty_daemon
     mode    => '0440',
     content => to_json_pretty(lookup('submitty_users')),
-    require => File['config_install_dir'],
+    require => File[lookup('extra_dirs.setup.path')],
   }
 
   file { 'submitty.json':
@@ -112,7 +100,7 @@ class submitty_config {
     owner   => 'root',
     mode    => '0444',
     content => to_json_pretty(lookup('submitty_submitty')),
-    require => File['config_install_dir'],
+    require => File[lookup('extra_dirs.setup.path')],
   }
 
   file { 'database.json':
@@ -122,7 +110,7 @@ class submitty_config {
     group   => 'submitty_daemonphp',
     mode    => '0440',
     content => to_json_pretty(lookup('submitty_database')),
-    require => File['config_install_dir'],
+    require => File[lookup('extra_dirs.setup.path')],
   }
 
   file { 'autograding_workers.json':
@@ -132,7 +120,7 @@ class submitty_config {
     group   => 'submitty_daemon',
     mode    => '0660',
     content => to_json_pretty(lookup('submitty_autograding_workers')),
-    require => File['config_install_dir'],
+    require => File[lookup('extra_dirs.setup.path')],
   }
 
   file { 'autograding_containers.json':
@@ -142,7 +130,7 @@ class submitty_config {
     group   => 'submitty_daemonphp',
     mode    => '0660',
     content => to_json_pretty(lookup('submitty_autograding_containers')),
-    require => File['config_install_dir'],
+    require => File[lookup('extra_dirs.setup.path')],
   }
 
   # NOTE All this will need the users and groups created first! (right?)
