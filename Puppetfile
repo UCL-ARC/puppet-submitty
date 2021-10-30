@@ -23,6 +23,7 @@ mod 'puppetlabs/rsync',      '1.1.3'
 mod 'puppetlabs/stdlib',     '8.1.0'
 mod 'puppetlabs/vcsrepo',    '5.0.0'
 mod 'puppetlabs/xinetd',     '3.3.0'
+mod 'saz/sudo',              '7.0.2'
 mod 'trlinkin/nsswitch',     '2.2.0'
 # Discovered elements from existing Puppetfile
 # Modules from the Puppet Forge

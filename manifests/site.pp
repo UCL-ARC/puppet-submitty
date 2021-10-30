@@ -26,7 +26,7 @@ include my_postgres
 include download_repositories
 include local_clang
 include submitty_config
-
+include sudo
 
   file { '/tmp/facts.yaml':
     content => inline_template(' <%= scope.to_hash.reject { |k,v| !( k.is_a?(String) && v.is_a?(String) ) }.to_yaml %>'),

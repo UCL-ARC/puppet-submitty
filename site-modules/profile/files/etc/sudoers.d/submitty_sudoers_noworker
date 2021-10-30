@@ -1,0 +1,4 @@
+#grant limited sudo access to members of the submitty_course_builders group (instructors)
+%submitty_course_builders ALL=(ALL:ALL) /usr/local/submitty/bin/generate_repos.py
+%submitty_course_builders ALL=(ALL:ALL) /usr/local/submitty/bin/grading_done.py
+%submitty_course_builders ALL=(ALL:ALL) /usr/local/submitty/bin/regrade.py

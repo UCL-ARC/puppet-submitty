@@ -535,6 +535,13 @@
         mode: '440'
         ensure: file
         require: Exec[composer-dependencies]
+    # config_versions: # NOTE this is not rsynced as it is all the others in this section
+    #   parent: *config
+    #   files:
+    #     - version.json
+    #   options:
+    #     mode: '644'
+    #     require: Exec[track-version]
 
 
     # sbin_call_check: # NOTE the permission gets setup on helper-bin, but the file is compiled into /bin not /sbin
@@ -673,4 +680,10 @@
       user: 'submitty_daemon'
       hour: 2
       minute: 5
+
+  sudo::configs:
+    submitty:
+        source: 'puppet:///modules/profile/etc/sudoers.d/submitty_sudoers' # FIXME cna we create a template?
+    submitty_builders:
+      source:  'puppet:///modules/profile/etc/sudoers.d/submitty_sudoers_noworker' # FIXME cna we create a template?
 
