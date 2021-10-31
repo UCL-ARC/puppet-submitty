@@ -21,7 +21,9 @@
     - Test databases were created: ~su -c 'psql -U submitty_dbuser -d submitty' postgres~ ~\dt~ ~\d users~
     - Test puppet commands: puppet apply --noop -e '$a = ['234', 'asdf'] node default { ($a + ['poiu', '3234']).map | $item | { notice($item) } }'
   - Questions
-    - can we have if blocks in hiera yaml file? (e.g., to separate vagrant/worker/etc...)
+    - [X] can we have if blocks in hiera yaml file? (e.g., to separate vagrant/worker/etc...) - better to create different ones that are added depending of machine name
+    - [ ] how can we link to the files inside this module? [[file:data/submitty.yaml::sudo::configs:][sudo::configs]]
+    - [ ] can we have a template that a hiera job refers to? e.g., sudo config block
 
 ** Where are we now?
     - [X] r10k first dependencies!
