@@ -1,6 +1,7 @@
 ---
   vagrant: true # TODO to use other way (automatically detected?)
   worker: false # TODO to use another way?
+  tests: true #
   institution:
     name: "super university"
     url: "https://super.university.edu"

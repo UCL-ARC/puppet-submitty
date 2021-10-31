@@ -384,6 +384,12 @@
       require:
         - Rsync::Get[site-files]
         - File[%{lookup('submitty.directories.install.path')}/site]
+    tests: &tests # Only if tests + not a worker
+      path: "%{lookup('submitty.directories.install.path')}/test_suite"
+    tests-log: &testslog # Only if tests + not a worker
+      path: "%{lookup('submitty.directories.install.path')}/test_suite/log"
+      require:
+        - Rsync::Get[tests-files]
     ########################################
     AnalysisTools:
       path: "%{lookup('submitty.directories.install.path')}/SubmittyAnalysisTools"
@@ -571,6 +577,8 @@
       options:
         chown: "root:submitty_daemon"
         chmod: '750'
+    tests:
+      options: {}
     site:
       options:
         exclude:

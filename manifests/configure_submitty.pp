@@ -537,4 +537,27 @@ class submitty_config {
                       ]
         }
       }
+
+      # TEST SUITE
+      if (! lookup('worker') and lookup('tests')) {
+        file {'test-link':
+          ensure  => 'link',
+          path    => join([lookup('extra_dirs.sbin.path'), 'run_test_suite.py'], '/'),
+          target  => join([lookup('extra_dirs.tests.path'), 'integrationTests', 'run.py'], '/'),
+          require => [Rsync::Get['tests-files'],]
+        }
+        # FIXME - this needs some look into the compilation step and see whether it's needed.
+        # ~> exec {'run-tests':
+        #   path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+        #   cwd     =>  join([lookup('submitty.directories.install.path'), 'sbin'], '/'),
+        #   command => 'python3 run_test_suite.py > /tmp/puppet_integration_tests 2>&1',
+        # }
+        # ~> exec {'run-rainbow-tests':
+        #   path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+        #   cwd     =>  join([lookup('extra_dirs.tests.path'), 'rainbowGrades'], '/'),
+        #   command => 'python3 test_sample.py > /tmp/puppet_rainbowGrades_tests 2>&1',
+        # }
+
+      }
+
 }
