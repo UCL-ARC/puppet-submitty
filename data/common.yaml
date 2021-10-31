@@ -2,6 +2,8 @@
   vagrant: true # TODO to use other way (automatically detected?)
   worker: false # TODO to use another way?
   tests: true #
+  development:
+    submissions: false # Otherwise it takes forever!!!
   institution:
     name: "super university"
     url: "https://super.university.edu"

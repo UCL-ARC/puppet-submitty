@@ -560,4 +560,40 @@ class submitty_config {
 
       }
 
+      if (lookup('vagrant') and ! lookup('worker')) {
+
+        if lookup('development.submissions') {
+          $no_submissions = ''
+        } else {
+          $no_submissions = '--no_submissions'
+        }
+        exec {'setup-sample-courses':
+          path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+          cwd     =>  join([lookup('submitty.directories.repository.path'), 'Submitty', '.setup', 'bin'], '/'),
+          command => "python3 setup_sample_courses.py --submission_url ${lookup('submitty.submission.url')} ${no_submissions} > /tmp/puppet_setup_sample_courses 2>&1",
+          unless  => "su -c \"PGPASSWORD=${lookup('submitty.db.passwd')} psql -U ${lookup('submitty.db.user')} -d submitty -c 'select * from courses;'\" postgres | grep -wq  development",
+          timeout => 1800, # 30 minutes is enough?
+        }
+        ~> exec {'setup-sample-user':
+          path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+          cwd     =>  join([lookup('submitty.directories.repository.path'), 'Submitty', '.setup', 'bin'], '/'),
+          command => "python3 setup_sample_user_data.py > /tmp/puppet_setup_sample_user 2>&1",
+          unless  => "[ \"$(ls -A ${lookup('extra_dirs.users.path')})\" ] || false" # dir not empty
+        }
+        ~> exec {'setup-sample-emails':
+          path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+          cwd     =>  join([lookup('submitty.directories.repository.path'), 'Submitty', '.setup', 'bin'], '/'),
+          command => "python3 setup_sample_emails.py > /tmp/puppet_setup_sample_emails 2>&1",
+          onlyif  => "su -c \"PGPASSWORD=${lookup('submitty.db.passwd')} psql -U ${lookup('submitty.db.user')} -d submitty -c 'select * from emails;'\" postgres | grep -wq '(0 rows)'",
+        }
+        systemd::unit_file { 'nullsmtpd.service':
+          ensure => file,
+          source => 'puppet:///modules/profile/etc/systemd/system/nullsmtpd.service',
+          enable => true,
+          mode   => '0444',
+          }
+          ~> service {'nullsmtpd' :
+            ensure => 'running',
+          }
+      }
 }
