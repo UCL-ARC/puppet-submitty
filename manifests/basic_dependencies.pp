@@ -3,7 +3,7 @@ class basic_dependencies {
 
 package { [
   'ca-certificates',
-  'curl',
+#  'curl', # NOTE docker compose redefines it!
   'python3', # 3.8.2 in ubuntu vs 3.6 in centos
   'python3-pip',
   'openssh-server',
@@ -94,6 +94,9 @@ php::fpm::pool { 'submitty':
 class { 'nodejs': } # FIXME (maybe) - should we restrict it to version 12?
 include 'docker'
 
+class {'docker::compose':
+  ensure => present,
+}
 
 # Python dependencies
 $pip_require = lookup('pip_require', Hash)

@@ -610,4 +610,33 @@ class submitty_config {
                     User['submitty_daemon'],
                    ]
       }
+
+      if lookup('vagrant') {
+        file { 'docker-daemon-proxy':
+          ensure  => present,
+          path    => join([lookup('extra_dirs.bin.path'), 'set_daemon_proxy.sh'], '/'),
+          content => epp('profile/submitty/setup/set_daemon_proxy.sh.epp',
+                         {
+                           'submitty_daemon' => 'submitty_daemon',
+                         }
+                        ),
+          mode    => '0700',
+          require => [File[lookup('extra_dirs.daemon-docker.path')],]
+        }
+        ~> exec {'docker-daemon-proxy':
+          path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+          cwd     => lookup('extra_dirs.bin.path'),
+          command => 'bash set_daemon_proxy.sh',
+        }
+
+
+
+      }
+
+      exec {'retag-image':
+        path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+        command => 'docker tag submitty/autograding-default:latest ubuntu:custom',
+        require => [Docker::Image['submitty/autograding-default'],]
+      }
+
 }

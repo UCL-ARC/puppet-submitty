@@ -177,6 +177,7 @@
       managehome: true
       # worker: false
       profile: "\n# set by puppet\numask 027\n"
+      require: Class[docker]
 
   untrusted:
     number: 60

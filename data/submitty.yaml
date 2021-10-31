@@ -427,6 +427,14 @@
       path: "%{lookup('submitty.directories.install.path')}/Lichen/tools/assignments"
       # owner: 'submitty_daemon'
       # group: 'submitty_course_builders'
+    ########################################
+    daemon-docker: # // only on vagrant
+      path: "/home/submitty_daemon/.docker"
+      owner: 'submitty_daemon'
+      group: 'submitty_daemon'
+      # mode: '0751'
+      require:
+        - User[submitty_daemon]
 
 
 
@@ -711,3 +719,7 @@
       owner: 'submitty_daemon'
       group: 'submitty_daemon'
       mode : '0444'
+
+  docker::images:
+    submitty/autograding-default:
+      image_tag: 'latest'
