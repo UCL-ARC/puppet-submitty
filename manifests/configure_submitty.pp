@@ -596,4 +596,18 @@ class submitty_config {
             ensure => 'running',
           }
       }
+
+      # Setup preferred_name_logging
+      file {"preferred_logging":
+        ensure  => file,
+        path    => join([lookup('extra_dirs.sbin.path'), 'preferred_name_logging.php'], '/'),
+        source => join([lookup('submitty.directories.repository.path'), 'SysadminTools', 'preferred_name_logging', 'preferred_name_logging.php'], '/'),
+        owner   => 'root',
+        group   => 'submitty_daemon',
+        mode    => '0550',
+        require => [File[lookup('extra_dirs.sbin.path')],
+                    Vcsrepo[join([lookup('submitty.directories.repository.path'), 'SysadminTools'], '/')],
+                    User['submitty_daemon'],
+                   ]
+      }
 }
