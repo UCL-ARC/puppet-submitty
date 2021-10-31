@@ -53,7 +53,7 @@ if lookup('vagrant') {
       remote_port => 9000,
       remote_host => "10.0.2.2",
       profiler_enable_trigger =>1,
-      profiler_output_dir => join([lookup('submitty', Hash)['repository'], "/.vagrant/Ubuntu/profiler"], ''),
+      profiler_output_dir => join([lookup('submitty.directories.repository.path'), "/.vagrant/Ubuntu/profiler"], ''),
       }
   }})}
 } else {

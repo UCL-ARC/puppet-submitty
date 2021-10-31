@@ -139,6 +139,9 @@ class submitty_config {
     ensure   => installed,
     name     => join([lookup('submitty.directories.repository.path'), 'Submitty', 'python_submitty_utils'], '/'),
     provider => pip,
+    require  => [
+      Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Submitty'], '/')],
+    ]
     # install_options =>[]
   }
 
