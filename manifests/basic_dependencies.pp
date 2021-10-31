@@ -90,6 +90,15 @@ php::fpm::pool { 'submitty':
   pm_min_spare_servers => 2,
   pm_max_spare_servers => 6,
 }
+if (lookup('vagrant') and ! lookup('worker')) {
+  # Disable OPCache for development purposes as we don't care about the efficiency as much
+  file_line { 'disable-opcache':
+    ensure  => present,
+    path    => '/etc/php/7.4/fpm/conf.d/10-opcache.ini',
+    line    => 'opcache.enable=0',
+    require => Class['::php']
+  }
+}
 
 class { 'nodejs': } # FIXME (maybe) - should we restrict it to version 12?
 include 'docker'

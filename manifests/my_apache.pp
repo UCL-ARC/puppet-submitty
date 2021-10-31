@@ -12,7 +12,8 @@ class my_apache {
                  'proxy_fcgi',
                  'rewrite',
                  'proxy_http',
-                 'proxy_wstunnel'
+                 'proxy_wstunnel',
+                 'wsgi' # NOTE - added as fails to recognise AuthBasicProvider wsgi
   ]:}
 
   # Ubuntu
@@ -88,7 +89,7 @@ class my_apache {
               rewrite_rule => '^(.+)$ /index.php?url=$1&%{QUERY_STRING} [NC,END]',
             },
           ],
-          setenv => 'Authorization "(.*)" HTTP_AUTHORIZATION=$1',
+          setenvif => 'Authorization "(.*)" HTTP_AUTHORIZATION=$1',
         },
         {
           path => '/usr/local/submitty/site/cgi-bin',

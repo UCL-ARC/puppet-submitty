@@ -145,6 +145,11 @@
       - "submitty/python:3.6"
       - "submittyrpi/csci1200:default"
   extra_dirs:
+    cgi-bin: # // No worker
+      path: "/usr/lib/cgi-bin"
+      owner: 'www-data'
+      group: 'www-data'
+      recurse: true
     config: &config
       path: "%{lookup('submitty.directories.install.path')}/config"
       group: 'submitty_course_builders'
