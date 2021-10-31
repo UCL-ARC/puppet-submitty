@@ -36,23 +36,23 @@ include sudo
   if lookup('vagrant') {
     # NOTE FIXME where should the templates for vagrant live? under profile?
   file {'/etc/motd':
-    ensure => present,
-    content => epp("profile/vagrant/vagrant_motd.epp",
-                   {
-                     'submission_url' => 'http://mylocalhost',
-                     'database_port' => "8332", # FIXME Template (should it be an integer?)
-                   }),
-  mode => '0644',
+    ensure  => present,
+    content => epp('profile/vagrant/vagrant_motd.epp',
+                    {
+                    'submission_url' => 'http://mylocalhost',
+                    'database_port'  => '8332', # FIXME Template (should it be an integer?)
+                    }),
+  mode      => '0644',
   }
-  file {'/root/.bashrc':
-    ensure => present,
-    content => epp("profile/vagrant/vagrant_root_bashrc.epp",
-                   {
-                     'submission_url' => 'http://mylocalhost',
-                     'database_port' => "8332", # FIXME Template (should it be an integer?)
-                   }),
-  mode => '0644',
-  }
+  # file {'/root/.bashrc':
+  #   ensure => present,
+  #   content => epp("profile/vagrant/vagrant_root_bashrc.epp",
+  #                  {
+  #                    'submission_url' => 'http://mylocalhost',
+  #                    'database_port' => "8332", # FIXME Template (should it be an integer?)
+  #                  }),
+  # mode => '0644',
+  # }
 
 }
 # FIXME - is there a way to know it's running on vagrant? Set option.
@@ -70,9 +70,9 @@ lookup('system_users', Hash, 'hash').each | String $username, Hash $attrs | {
     # notify {" For ${username} we've got ${field}":}
     if $field == 'profile' {
       file {"/home/${username}/.profile":
-        ensure => present,
+        ensure  => present,
         content => $value,
-        owner => $username,
+        owner   => $username,
         require => User[$username],
       }
     }
@@ -80,7 +80,7 @@ lookup('system_users', Hash, 'hash').each | String $username, Hash $attrs | {
       if $value { # worker == True
         notify {" For ${username} we've got to run something":}
       } else {
-        $ensure_user = "absent"
+        $ensure_user = 'absent'
         # FIXME use this variable to remove the user.
         #       I don't know how to set this first...
       }
@@ -94,15 +94,15 @@ lookup('system_users', Hash, 'hash').each | String $username, Hash $attrs | {
 
 $data = Integer[0, lookup('untrusted.number', Integer) - 1]
 $data.each | Integer $value | {
-  $userid = sprintf("%<y>02d", { 'y' => $value })
+  $userid = sprintf('%<y>02d', { 'y' => $value })
   group {"untrusted${userid}":
     gid => 900 + $value
   }
   user {"untrusted${userid}":
-    ensure => present,
-    uid => lookup('untrusted.start_uid', Integer) + $value,
-    gid => lookup('untrusted.start_uid', Integer) + $value,
-    home => '/tmp', # Home dir is not created
+    ensure  => present,
+    uid     => lookup('untrusted.start_uid', Integer) + $value,
+    gid     => lookup('untrusted.start_uid', Integer) + $value,
+    home    => '/tmp', # Home dir is not created
     comment => "Unstrusted user ${value}",
     require => Group["untrusted${userid}"],
   }

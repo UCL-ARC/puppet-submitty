@@ -167,15 +167,15 @@ class submitty_config {
     ensure  => present,
     path    => join([lookup('extra_dirs.src-grading.path'), 'replace_fillin.sh'], '/'),
     content => epp('profile/submitty/grading/replace_fillin.sh.epp',
-                   {
-                     'submitty_install_dir' => lookup('submitty.directories.install.path'),
-                     'submitty_data_dir'    => lookup('submitty.directories.data.path'),
-                     'num_untrusted'        => lookup('untrusted.number'),
-                     'first_untrusted_uid'  => lookup('untrusted.start_uid'),
-                     'first_untrusted_gid'  => lookup('untrusted.start_uid'),
-                     'daemon_uid'           => lookup('system_users.submitty_daemon.uid'),
-                     'daemon_gid'           => lookup('system_groups.submitty_daemon.gid'),
-                   }),
+                    {
+                      'submitty_install_dir' => lookup('submitty.directories.install.path'),
+                      'submitty_data_dir'    => lookup('submitty.directories.data.path'),
+                      'num_untrusted'        => lookup('untrusted.number'),
+                      'first_untrusted_uid'  => lookup('untrusted.start_uid'),
+                      'first_untrusted_gid'  => lookup('untrusted.start_uid'),
+                      'daemon_uid'           => lookup('system_users.submitty_daemon.uid'),
+                      'daemon_gid'           => lookup('system_groups.submitty_daemon.gid'),
+                    }),
     mode    => '0700',
     require => [Rsync::Get[lookup('extra_dirs.src.path')],]
   }
@@ -188,9 +188,10 @@ class submitty_config {
         cwd     => lookup('extra_dirs.src-grading.path'),
         command => "bash replace_fillin.sh ${filepath}",
         onlyif  => "grep  '__FILLIN__' ${filepath}",
-        require => [File['replace_fillin'],
-                    File['untrusted_exec'],
-                   ]
+        require => [
+          File['replace_fillin'],
+          File['untrusted_exec'],
+        ]
       }
     }
   }
@@ -206,10 +207,11 @@ class submitty_config {
     command => 'cmake .. && make',
     creates => join([lookup('submitty.directories.install.path'), 'src', 'grading', 'lib', 'Makefile'], '/'),
     onlyif  => 'test ! -f Makefile',
-    require => [File['lib_dir'],
-                Exec['grad_fix_execute.cpp'],
-                Rsync::Get['nlohmann-json'],
-               ]
+    require => [
+      File['lib_dir'],
+      Exec['grad_fix_execute.cpp'],
+      Rsync::Get['nlohmann-json'],
+    ]
   }
 
   file { 'submitty_router':
@@ -275,19 +277,20 @@ class submitty_config {
     owner   => 'root',
     group   => 'root',
     mode    => '0500',
-    require => [File[lookup('extra_dirs.setup.path')],
-                Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Submitty'], '/')],
-               ],
+    require => [
+      File[lookup('extra_dirs.setup.path')],
+      Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Submitty'], '/')],
+    ],
   }
 
   file { 'compile_bin':
     ensure  => present,
     path    => join([lookup('extra_dirs.bin.path'), 'compile_bin.sh'], '/'),
     content => epp('profile/submitty/grading/compile_bin.sh.epp',
-                   {
-                     'submitty_install_dir' => lookup('submitty.directories.install.path'),
-                     'submitty_setup_dir'   => lookup('extra_dirs.setup.path'),
-                   }),
+                    {
+                      'submitty_install_dir' => lookup('submitty.directories.install.path'),
+                      'submitty_setup_dir'   => lookup('extra_dirs.setup.path'),
+                    }),
     mode    => '0700',
     require => [File[lookup('extra_dirs.bin.path')],]
   }
@@ -296,13 +299,14 @@ class submitty_config {
     cwd     => lookup('extra_dirs.bin.path'),
     command => 'bash compile_bin.sh',
     onlyif  => 'test ! -f system_call_check.out',
-    require => [File['compile_bin'],
-                File['untrusted_exec'],
-                Rsync::Get['bin-files'],
-                File[lookup('extra_dirs.src.path')],
-                Exec['setup_fix_untrusted_execute.c'],
-               ]
-    }
+    require => [
+      File['compile_bin'],
+      File['untrusted_exec'],
+      Rsync::Get['bin-files'],
+      File[lookup('extra_dirs.src.path')],
+      Exec['setup_fix_untrusted_execute.c'],
+    ]
+  }
 
 
     lookup('copy_setup_bin.files').each | String $filename | {
@@ -324,9 +328,9 @@ class submitty_config {
       ensure  => present,
       path    => '/root/.cron_update_site_permissions.sh',
       content => epp('profile/submitty/grading/update_site_permissions.sh.epp',
-                     {
-                       'submitty_install_dir' => lookup('submitty.directories.install.path'),
-                     }),
+                      {
+                        'submitty_install_dir' => lookup('submitty.directories.install.path'),
+                      }),
     mode      => '0700',
     }
     cron { 'site_permissions':
@@ -347,9 +351,10 @@ class submitty_config {
       environment => [ 'HOME=/home/submitty_php',],
       command     => "composer install -d ${extra_dirs_site} --no-dev --prefer-dist --optimize-autoloader --no-progress --no-ansi > /tmp/puppet_output_composer_dependencies 2>&1",
       onlyif      => "composer install -d ${extra_dirs_site} --dry-run 2>&1 | grep -E -- '- (Install|Updat)ing '",
-      require     => [Rsync::Get['site-files'],
-                  File[lookup('extra_dirs.site-vendor.path')],
-                 ],
+      require     => [
+        Rsync::Get['site-files'],
+        File[lookup('extra_dirs.site-vendor.path')],
+      ],
       loglevel    => debug,
       logoutput   => 'on_failure',
     }
@@ -360,10 +365,11 @@ class submitty_config {
       environment => [ 'HOME=/home/submitty_php',],
       command     => 'npm install --loglevel=error --no-save > /tmp/puppet_output_npm_dependencies 2>&1',
       onlyif      => "npm install --dry-run 2>&1 | grep -E -- 'added '",
-      require     => [Rsync::Get['site-files'],
-                  File[lookup('extra_dirs.site-vendor.path')],
-                  Class['nodejs'],
-                 ],
+      require     => [
+        Rsync::Get['site-files'],
+        File[lookup('extra_dirs.site-vendor.path')],
+        Class['nodejs'],
+      ],
       loglevel    => debug,
       logoutput   => 'on_failure',
     }
@@ -371,9 +377,9 @@ class submitty_config {
       ensure  => present,
       path    => join([lookup('extra_dirs.bin.path'), 'copy_npm_public.sh'], '/'),
       content => epp('profile/submitty/grading/copy_npm_public.sh.epp',
-                     {
-                       'submitty_install_dir' => lookup('submitty.directories.install.path'),
-                     }
+                      {
+                        'submitty_install_dir' => lookup('submitty.directories.install.path'),
+                      }
                     ),
       mode    => '0700',
       require => [Exec['npm-dependencies'],]
@@ -384,8 +390,9 @@ class submitty_config {
       cwd     => lookup('extra_dirs.bin.path'),
       command => 'bash copy_npm_public.sh',
       onlyif  => 'test ! -f copied_npm',
-      require => [File['copy-npm'],
-                 ]
+      require => [
+        File['copy-npm'],
+      ]
     }
 
     # How to reload php? that should be the end
@@ -403,9 +410,10 @@ class submitty_config {
         file { "copy-analysis-${destin_name}_${filename}":
           path    => join([$properties['dest_path'], $file_name], '/'),
           source  => join([lookup('copy_analysis_compile.parent_origin_path'), $origin_name, $filename], '/'),
-          require => [Vcsrepo[join([lookup('submitty.directories.repository.path'), 'AnalysisTools'], '/')],
-                      $properties['require'],
-                     ],
+          require => [
+            Vcsrepo[join([lookup('submitty.directories.repository.path'), 'AnalysisTools'], '/')],
+            $properties['require'],
+          ],
           *       => lookup('copy_analysis_compile.options')
         }
       }
@@ -419,9 +427,10 @@ class submitty_config {
         cwd     => join([lookup('submitty.directories.repository.path'), 'AnalysisTools', 'commonAST'], '/'),
         command => "g++ parser${traversal}.cpp traversal${traversal}.cpp -o ${path_out}",
         onlyif  => "test ! -f ${path_out}",
-        require => [Vcsrepo[join([lookup('submitty.directories.repository.path'), 'AnalysisTools'], '/')],
-                    File[lookup('extra_dirs.AnalysisTools.path')],
-                   ],
+        require => [
+          Vcsrepo[join([lookup('submitty.directories.repository.path'), 'AnalysisTools'], '/')],
+          File[lookup('extra_dirs.AnalysisTools.path')],
+        ],
       }
 
     }
@@ -444,30 +453,33 @@ class submitty_config {
     rsync::get { 'nlohmann-json-lichen':
       path      => lookup('extra_dirs.Lichen-vendor-nlohmann.path'),
       source    => join([lookup('submitty.directories.repository.path'), 'vendor', 'nlohmann',
-                         'json', 'include', 'nlohmann', '*'], '/' ),
+                          'json', 'include', 'nlohmann', '*'], '/' ),
       recursive => true,
       times     => true,
-      require   => [ Vcsrepo['nlohmann-json'],
-                     File[lookup('extra_dirs.Lichen-vendor-nlohmann.path')],
-                   ],
+      require   => [
+        Vcsrepo['nlohmann-json'],
+        File[lookup('extra_dirs.Lichen-vendor-nlohmann.path')],
+      ],
     }
     exec {'lichen-build-hashes':
       path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
       cwd     =>  join([lookup('submitty.directories.repository.path'), 'Lichen'], '/'),
       command => "clang++ -I ${lookup('extra_dirs.Lichen-vendor.path')} -lboost_system -lboost_filesystem -Wall -Wextra -Werror -g -O3 -flto -funroll-loops -std=c++11 compare_hashes/compare_hashes.cpp -o ${lookup('extra_dirs.Lichen-bin.path')}/compare_hashes.out",
-      require => [Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Lichen'], '/')],
-                  File[lookup('extra_dirs.Lichen-bin.path')],
-                  Rsync::Get['nlohmann-json-lichen'],
-                 ],
+      require => [
+        Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Lichen'], '/')],
+        File[lookup('extra_dirs.Lichen-bin.path')],
+        Rsync::Get['nlohmann-json-lichen'],
+      ],
     }
     exec {'lichen-build-token':
       path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
       cwd     =>  join([lookup('submitty.directories.repository.path'), 'Lichen'], '/'),
       command => "clang++ -I ${lookup('extra_dirs.Lichen-vendor.path')} -std=c++11 -Wall -O3 tokenizer/plaintext/plaintext_tokenizer.cpp -o  ${lookup('extra_dirs.Lichen-bin.path')}/plaintext_tokenizer.out",
-      require => [Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Lichen'], '/')],
-                  File[lookup('extra_dirs.Lichen-bin.path')],
-                  Rsync::Get['nlohmann-json-lichen'],
-                 ],
+      require => [
+        Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Lichen'], '/')],
+        File[lookup('extra_dirs.Lichen-bin.path')],
+        Rsync::Get['nlohmann-json-lichen'],
+      ],
     }
 
     lookup('copy_lichen_tokenizer.files').each | String $filename | {
@@ -482,9 +494,10 @@ class submitty_config {
         path    => join([lookup('extra_dirs.Lichen-bin.path'), $file_name], '/'),
         source  => join([lookup('submitty.directories.repository.path'), 'Lichen', 'tokenizer', $filename], '/'),
         *       => lookup('copy_lichen_tokenizer.options'),
-        require => [Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Lichen'], '/')],
-                    File[lookup('extra_dirs.Lichen-bin.path')],
-                   ],
+        require => [
+          Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Lichen'], '/')],
+          File[lookup('extra_dirs.Lichen-bin.path')],
+        ],
       }
     }
 
@@ -493,9 +506,10 @@ class submitty_config {
       path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
       cwd     =>  join([lookup('submitty.directories.install.path'), '.setup', 'bin'], '/'),
       command => 'python3 track_git_version.py > /tmp/puppet_trac_version 2>&1',
-      require => [Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Submitty'], '/')],
-                  File[lookup('extra_dirs.config.path')],
-                 ],
+      require => [
+        Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Submitty'], '/')],
+        File[lookup('extra_dirs.config.path')],
+      ],
     }
     # TODO Update to include the right versions and at the end.
     notice("Installed Submitty version ${lookup('versions.submitty.Submitty')}")
@@ -503,10 +517,11 @@ class submitty_config {
       # Create crons as per the template:
       lookup('submitty_cron_jobs').each | String $group, Hash $options | {
         cron {"cron_${group}":
-          * => $options,
-          require => [File[lookup('extra_dirs.sbin.path')],
-                      Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Submitty'], '/')],
-                     ],
+          *       => $options,
+          require => [
+            File[lookup('extra_dirs.sbin.path')],
+            Vcsrepo[join([lookup('submitty.directories.repository.path'), 'Submitty'], '/')],
+          ],
         }
       }
 
@@ -580,13 +595,13 @@ class submitty_config {
         ~> exec {'setup-sample-user':
           path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
           cwd     =>  join([lookup('submitty.directories.repository.path'), 'Submitty', '.setup', 'bin'], '/'),
-          command => "python3 setup_sample_user_data.py > /tmp/puppet_setup_sample_user 2>&1",
+          command => 'python3 setup_sample_user_data.py > /tmp/puppet_setup_sample_user 2>&1',
           unless  => "[ \"$(ls -A ${lookup('extra_dirs.users.path')})\" ] || false" # dir not empty
         }
         ~> exec {'setup-sample-emails':
           path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
           cwd     =>  join([lookup('submitty.directories.repository.path'), 'Submitty', '.setup', 'bin'], '/'),
-          command => "python3 setup_sample_emails.py > /tmp/puppet_setup_sample_emails 2>&1",
+          command => 'python3 setup_sample_emails.py > /tmp/puppet_setup_sample_emails 2>&1',
           onlyif  => "su -c \"PGPASSWORD=${lookup('submitty.db.passwd')} psql -U ${lookup('submitty.db.user')} -d submitty -c 'select * from emails;'\" postgres | grep -wq '(0 rows)'",
         }
         systemd::unit_file { 'nullsmtpd.service':
@@ -601,17 +616,18 @@ class submitty_config {
       }
 
       # Setup preferred_name_logging
-      file {"preferred_logging":
+      file {'preferred_logging':
         ensure  => file,
         path    => join([lookup('extra_dirs.sbin.path'), 'preferred_name_logging.php'], '/'),
-        source => join([lookup('submitty.directories.repository.path'), 'SysadminTools', 'preferred_name_logging', 'preferred_name_logging.php'], '/'),
+        source  => join([lookup('submitty.directories.repository.path'), 'SysadminTools', 'preferred_name_logging', 'preferred_name_logging.php'], '/'),
         owner   => 'root',
         group   => 'submitty_daemon',
         mode    => '0550',
-        require => [File[lookup('extra_dirs.sbin.path')],
-                    Vcsrepo[join([lookup('submitty.directories.repository.path'), 'SysadminTools'], '/')],
-                    User['submitty_daemon'],
-                   ]
+        require => [
+          File[lookup('extra_dirs.sbin.path')],
+          Vcsrepo[join([lookup('submitty.directories.repository.path'), 'SysadminTools'], '/')],
+          User['submitty_daemon'],
+        ]
       }
 
       if lookup('vagrant') {
@@ -619,9 +635,9 @@ class submitty_config {
           ensure  => present,
           path    => join([lookup('extra_dirs.bin.path'), 'set_daemon_proxy.sh'], '/'),
           content => epp('profile/submitty/setup/set_daemon_proxy.sh.epp',
-                         {
-                           'submitty_daemon' => 'submitty_daemon',
-                         }
+                          {
+                            'submitty_daemon' => 'submitty_daemon',
+                          }
                         ),
           mode    => '0700',
           require => [File[lookup('extra_dirs.daemon-docker.path')],]

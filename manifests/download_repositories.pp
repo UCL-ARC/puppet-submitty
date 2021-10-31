@@ -7,15 +7,15 @@ class download_repositories {
     ensure   => present,
     provider => git,
     source   =>  "https://github.com/Submitty/${prog}",
-    revision => "${version}",
+    revision => $version,
   }
 }
 vcsrepo { 'nlohmann-json':
-  path => join([lookup('submitty.directories.repository.path'), 'vendor', 'nlohmann', 'json'], '/' ),
-  ensure => present,
+  ensure   => present,
+  path     => join([lookup('submitty.directories.repository.path'), 'vendor', 'nlohmann', 'json'], '/' ),
   provider => git,
-  source => "https://github.com/nlohmann/json.git",
-  depth => 1,
+  source   => 'https://github.com/nlohmann/json.git',
+  depth    => 1,
 }
 
 }

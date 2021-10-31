@@ -7,7 +7,7 @@ class git_latest {
   $os = downcase($::facts[os][name])
 
   file { '/tmp/hello':
-    ensure => file,
+    ensure  => file,
     content => "this run on ${os}\n",
   }
 
@@ -26,10 +26,10 @@ class git_latest {
       file { '/etc/yum.repos.d/wandisco-git.repo':
         ensure  => file,
         path    => '/etc/yum.repos.d/wandisco-git.repo',
-        content => epp("/wandisco-git.repo.epp", # or git_latest (as I moved it there?)
-                       {
-                         baseurl => "http://opensource.wandisco.com/${os}/${releasever}/git/${architecture}/",
-                       }
+        content => epp('/wandisco-git.repo.epp', # or git_latest (as I moved it there?)
+                        {
+                          baseurl => "http://opensource.wandisco.com/${os}/${releasever}/git/${architecture}/",
+                        }
                       ),
       }
     }

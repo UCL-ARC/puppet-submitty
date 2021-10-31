@@ -51,9 +51,9 @@ if lookup('vagrant') {
     settings => {
       remote_enable => 1,
       remote_port => 9000,
-      remote_host => "10.0.2.2",
+      remote_host => '10.0.2.2',
       profiler_enable_trigger =>1,
-      profiler_output_dir => join([lookup('submitty.directories.repository.path'), "/.vagrant/Ubuntu/profiler"], ''),
+      profiler_output_dir => join([lookup('submitty.directories.repository.path'), '/.vagrant/Ubuntu/profiler'], ''),
       }
   }})}
 } else {
@@ -66,7 +66,7 @@ class { '::php':
   fpm          => true,
   phpunit      => false,
   composer     => true,
-  * => $php_extensions,
+  *            => $php_extensions,
 }
 # NOTE this may still be needed - or the prefix above works?
 # A work around based on https://github.com/php-ds/ext-ds/issues/2
@@ -79,14 +79,14 @@ class { '::php':
 #   require => Class['::php'],
 # }
 php::fpm::pool { 'submitty':
-  user => submitty_php,
-  group => submitty_php,
-  listen => '/run/php/php-fpm-submitty.sock',
-  listen_owner => 'www-data',
-  listen_group => 'www-data',
-  pm => 'dynamic',
-  pm_max_children => 20,
-  pm_start_servers => 4,
+  user                 => submitty_php,
+  group                => submitty_php,
+  listen               => '/run/php/php-fpm-submitty.sock',
+  listen_owner         => 'www-data',
+  listen_group         => 'www-data',
+  pm                   => 'dynamic',
+  pm_max_children      => 20,
+  pm_start_servers     => 4,
   pm_min_spare_servers => 2,
   pm_max_spare_servers => 6,
 }
@@ -111,8 +111,8 @@ class {'docker::compose':
 $pip_require = lookup('pip_require', Hash)
 $pip_require.each | String $pippackage, String $version | {
   package { "pip_${pippackage}":
-    name => "${pippackage}",
     ensure   => $version,
+    name     => $pippackage,
     provider => 'pip',
   }
 
@@ -121,8 +121,8 @@ if lookup('vagrant') {
   $pip_require_vagrant = lookup('pip_require_vagrant', Hash)
   $pip_require_vagrant.each | String $pippackage, String $version | {
     package { "pip_${pippackage}":
-      name => "${pippackage}",
       ensure   => $version,
+      name     => $pippackage,
       provider => 'pip',
     }
   }
@@ -137,14 +137,14 @@ if lookup('vagrant') {
 # TODO - convert to module
 $package_name        = 'tclap'
 $package_version     = '1.2.2'
-$install_path        = "/tmp/"
-$repository_url      = "https://sourceforge.net/projects/tclap/files/"
+$install_path        = '/tmp/'
+$repository_url      = 'https://sourceforge.net/projects/tclap/files/'
 $archive_name        = "${package_name}-${package_version}.tar.gz"
 $package_source      = "${repository_url}/${archive_name}"
 $package_directory   = "${install_path}/${package_name}-${package_version}"
-$install_command     = "bash configure; make; make install"
-$package_sample      = "/usr/local/include/tclap/Arg.h"
-$tclap_installed     = inline_template("<%= File.exist?('$package_sample') %>")
+$install_command     = 'bash configure; make; make install'
+$package_sample      = '/usr/local/include/tclap/Arg.h'
+$tclap_installed     = inline_template("<%= File.exist?('${package_sample}') %>")
 
 unless ($tclap_installed) {
   # onlyif       => "test ! -f ${package_sample}",
@@ -153,15 +153,15 @@ unless ($tclap_installed) {
     source       => $package_source,
     extract      => true,
     extract_path => $install_path,
-    creates      => "${package_directory}",
+    creates      => $package_directory,
     cleanup      => true,
   }
   file_line { 'tclap_make':
-    ensure => present,
-    path   => "${install_path}/${package_name}-${package_version}/Makefile.in",
-    line   => "SUBDIRS = include docs msc config",
-    match  => 'SUBDIRS = include examples docs tests msc config',
-    require => Archive["${archive_name}"],
+    ensure  => present,
+    path    => "${install_path}/${package_name}-${package_version}/Makefile.in",
+    line    => 'SUBDIRS = include docs msc config',
+    match   => 'SUBDIRS = include examples docs tests msc config',
+    require => Archive[$archive_name],
   }
   exec { "Install ${package_name} ${package_version}":
     path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',

@@ -25,7 +25,7 @@ class local_clang {
   # tar striping directories:
   archive { "${clangsrc}/source/llvmorg-7.1.0.tar.gz":
     ensure          => present,
-    source          => "https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-7.1.0.tar.gz",
+    source          => 'https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-7.1.0.tar.gz',
     extract         => true,
     extract_command => 'tar xfz %s --strip-components=1',
     extract_path    => "${clangsrc}/source/",
@@ -36,7 +36,7 @@ class local_clang {
 
 
   File {"${clangsrc}/compile.sh":
-    ensure => file,
+    ensure  => file,
     content => "
 cp -R ${clangsrc}/source/llvm ${clangsrc}/llvm
 cp -R ${clangsrc}/source/clang ${clangsrc}/llvm/tools
@@ -50,28 +50,29 @@ cmake -G Ninja ../src/llvm -DCMAKE_INSTALL_PREFIX=${clanginstall} -DCMAKE_BUILD_
     }
 
 
-  exec { "set-clang":
+  exec { 'set-clang':
     path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
-    cwd => $clangsrc,
-    command => "bash compile.sh",
+    cwd     => $clangsrc,
+    command => 'bash compile.sh',
     creates => "${clangbuild}/.ninja",
-    onlyif => "test ! -f ${clangbuild}/build.ninja",
-    require => [Archive["${clangsrc}/source/llvmorg-7.1.0.tar.gz"],
-                #Vcsrepo["${clangsrc}/source"],
-                File["${clangbuild}"],
-                File["${clanginstall}"],
-               ],
+    onlyif  => "test ! -f ${clangbuild}/build.ninja",
+    require => [
+      Archive["${clangsrc}/source/llvmorg-7.1.0.tar.gz"],
+      #Vcsrepo["${clangsrc}/source"],
+      File[$clangbuild],
+      File[$clanginstall],
+    ],
   }
 
   file_line { 'astmatcher':
-    path => "${clangsrc}/llvm/tools/clang/tools/extra/CMakeLists.txt",
-    line => 'add_subdirectory(ASTMatcher)',
-    require => Exec["set-clang"],
+    path    => "${clangsrc}/llvm/tools/clang/tools/extra/CMakeLists.txt",
+    line    => 'add_subdirectory(ASTMatcher)',
+    require => Exec['set-clang'],
   }
   file_line { 'uniontool':
-    path => "${clangsrc}/llvm/tools/clang/tools/extra/CMakeLists.txt",
-    line => 'add_subdirectory(UnionTool)',
-    require => Exec["set-clang"],
+    path    => "${clangsrc}/llvm/tools/clang/tools/extra/CMakeLists.txt",
+    line    => 'add_subdirectory(UnionTool)',
+    require => Exec['set-clang'],
   }
 
 
