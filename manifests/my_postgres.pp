@@ -89,8 +89,9 @@ class my_postgres {
     exec {'run_db_migration':
       cwd => join([lookup('submitty.directories.repository.path'), 'Submitty'], '/'),
       path    => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
-      command => "python3 migration/run_migrator.py -e master -e system migrate --initial",
-      onlyif  => 'test ! $(su -c "psql -lqt | cut -d \| -f 1 | grep -w submitty || true" postgres)',
+      command => "python3 migration/run_migrator.py -e master -e system migrate --initial > /tmp/puppet_db_migration 2>&1",
+      # onlyif  => 'test ! $(su -c "psql -lqt | cut -d \| -f 1 | grep -w submitty || true" postgres)',
+      unless  => "su -c \"PGPASSWORD=${lookup('submitty.db.passwd')} psql -U ${lookup('submitty.db.user')} -d submitty -c '\\dt' | cut -d '|' -f 2 | grep -wq courses\" postgres",
       require => [ Postgresql::Server::Database['submitty'],
                    Postgresql::Server::Schema['public'],
                    File['submitty_users.json'],
@@ -99,12 +100,20 @@ class my_postgres {
                  ],
     }
 
-}
-
+    lookup('psql-logger').each | String $key, String $value | {
+      file_line { "psql-logger-${key}":
+        ensure  => present,
+        path    => "/etc/postgresql/${lookup('versions.db.psql')}/main/postgresql.conf",
+        line    => "${key} = ${value}",
+        match   => "^#*[ tab]*${key}[ tab]+",
+        require => [Class['postgresql::globals'],]
+      }
+    }
+  }
 
 class { 'postgresql::globals':
   manage_package_repo => true,
-  version             => '12', # NOTE it should be 12.8
+  version             => "${lookup('versions.db.psql')}", # NOTE it should be 12.8
   encoding => 'UTF-8',
   locale   => 'en_US.UTF-8',
   * => $extra,

@@ -72,6 +72,9 @@
     drmemory:
       TAG: 'release_2.3.0'
       version: '2.3.0-1'
+    db:
+      psql: '12'
+
 
   pip_require:
     cryptography: "3.3.2"

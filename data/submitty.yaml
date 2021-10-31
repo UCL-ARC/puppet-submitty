@@ -229,6 +229,8 @@
       owner: 'postgres'
       group: 'submitty_daemon'
       mode: "2770" # FIXME changed on 291 and on 306 of INSTALL_SUBMITTY_HELPER.sh. Here is the combination.
+      require:
+        - Class[postgresql::globals]
     logs-preferred:  # // No worker
       path: "%{lookup('submitty.directories.data.path')}/logs/preferred_names"
       owner: 'submitty_daemon'
@@ -719,6 +721,20 @@
       owner: 'submitty_daemon'
       group: 'submitty_daemon'
       mode : '0444'
+
+
+  psql-logger:
+    log_destination: "'csvlog'"
+    logging_collector: 'on'
+    log_directory: "'%{lookup('submitty.directories.data.path')}/logs/psql'"
+    log_filename: "'postgresql_%Y-%m-%dT%H%M%S.log'"
+    log_file_mode: '0640'
+    log_rotation_age: '1d'
+    log_rotation_size: '0'
+    log_min_messages: 'warning'
+    log_min_duration_statement: '-1'
+    log_statement: "'ddl'"
+    log_error_verbosity: 'default'
 
   docker::images:
     submitty/autograding-default:
